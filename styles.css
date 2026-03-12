@@ -1,0 +1,118 @@
+:root {
+    --couleur-fond-nav: #f1f2f7;
+    --couleur-principal: #2c416e;
+    --couleur-principal-hover: #233456;
+}
+
+* {
+    padding: 0;
+    margin: 0;
+    font-family:
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        'Segoe UI',
+        Roboto,
+        Oxygen,
+        Ubuntu,
+        Cantarell,
+        'Open Sans',
+        'Helvetica Neue',
+        sans-serif;
+}
+
+/*-----page connexion------------------------------------------------------------------------------------------*/
+.connexion aside {
+    display: flex;
+    min-height: 100vh;
+}
+
+.connexion nav {
+    background-color: var(--couleur-fond-nav);
+    width: 300px;
+    height: 100vh;
+}
+
+.connexion .logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-top: 20px;
+    gap: 10px;
+}
+
+.connexion .logo img {
+    width: 30px;
+    height: 31px;
+}
+
+.connexion .logo p {
+    font-size: 15px;
+    font-weight: bold;
+}
+
+.connexion .logo span {
+    font-size: 10px;
+    font-weight: bold;
+}
+
+.connexion .logo .logo-container {
+    line-height: 1;
+}
+
+.connexion main {
+    display: flex;
+    justify-content: center;
+    margin-top: 100px;
+    padding-left: 100px;
+}
+
+.connexion h1 {
+    color: black;
+    font-size: 30px;
+    margin-bottom: 50px;
+}
+
+.connexion h2 {
+    color: var(--couleur-principal);
+    font-size: 20px;
+    margin-bottom: 30px;
+}
+
+.connexion form {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 400px;
+}
+
+.connexion label {
+    margin-bottom: 5px;
+    font-size: 14px;
+    color: #333;
+}
+
+.connexion input {
+    padding: 10px;
+    width: 500px;
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.connexion form button {
+    all: unset;
+    cursor: pointer;
+    background-color: var(--couleur-principal);
+    color: white;
+    text-align: center;
+    padding: 14px 20px;
+    border-radius: 8px;
+    width: max-content;
+    margin-top: 10px;
+    transition: all 0.3s;
+}
+
+.connexion form button:hover {
+    background-color: var(--couleur-principal-hover);
+}
