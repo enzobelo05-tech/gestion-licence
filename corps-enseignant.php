@@ -1,6 +1,8 @@
 <?php 
   require_once "config.php";
 
+  $count = 0;
+
   if($_SERVER['REQUEST_METHOD'] === 'POST'){
     $count = 0;
 
@@ -109,10 +111,12 @@
           <hr />
         </section>
         <section class="enseignant-found">
-          <?php  
-            foreach($enseignant as $ens){
+          <?php
+            if (isset($enseignant)){
+              foreach($enseignant as $ens){
                 $count += 1;
               } 
+            }
           ?>
           <h3><?= $count ?> enseignant trouvé(s)</h3>
           <div class="tableau">
@@ -123,7 +127,7 @@
               <p>Nombre d'heures</p>
             </div>
             <?php 
-              if($enseignant){
+              if(isset($enseignant)){
 
                 foreach($enseignant as $e){
                   ?>
@@ -142,8 +146,6 @@
 
                   if($enseignantInfo){
                     $heure = 0;
-                    ?>
-                    <?php
                     foreach($enseignantInfo as $en){
                       ?>
                           <?= htmlspecialchars($en["name"]) ?>
@@ -152,13 +154,16 @@
                     }
                     ?>
                         </p>
-                        
+
                         <p><?= $heure ?>h</p>
                         
                     <?php
                   }
                   ?>
-                    <p>voir</p>
+                    <div class="voirFiche">
+                      <img src="assets/SeeMore.png" alt="Voir plus">
+                      <a href="infos-generales.php?id=<?= htmlspecialchars($e['id']) ?>">Accéder à la fiche</a>
+                    </div>
                   </div>
                   <?php
                 }

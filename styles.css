@@ -7,7 +7,7 @@
   --couleur-principal-hover: #233456;
   --couleur-secondaire: #ffbd01;
   --couleur-secondaire-hover: #f2b100;
-  --taille-texte-principal: 16px;
+  --taille-texte-principal: 15px;
   --taille-texte-secondaire: 12px;
 }
 
@@ -27,6 +27,10 @@
     "Helvetica Neue",
     sans-serif;
 }
+a {
+  text-decoration: none;
+  color: black;
+}
 body {
   display: flex;
   min-height: 100vh;
@@ -36,6 +40,10 @@ body {
   flex-direction: column;
   width: 100%;
   height: 100%;
+}
+
+main {
+  padding: 2% 4%;
 }
 
 /*** Aside ***/
@@ -98,6 +106,7 @@ body {
   width: 100%;
   margin-top: 20px;
   white-space: nowrap;
+  gap: 2px;
 }
 .aside-page .parametrage-child,
 .aside-page .menu-child {
@@ -111,7 +120,7 @@ body {
 .aside-page .parametrage-child:hover,
 .aside-page .menu-child:hover {
   cursor: pointer;
-  background-color: var(--couleur-principal-hover);
+  background-color: var(--couleur-principal);
   color: white;
 }
 .aside-page .parametrage-child:hover img,
@@ -129,7 +138,7 @@ header {
 }
 header p {
   font-weight: 600;
-  margin: 15px 0px;
+  margin: 10px 0px;
 }
 header .filAriane {
   padding: 0px 40px;
@@ -142,6 +151,63 @@ header hr {
   width: 100%;
   background-color: rgb(227, 227, 227);
   border: none;
+}
+
+/***** Fiche enseignant *****/
+.interventions .mod-ens,
+.infosGenerales .mod-ens {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.interventions .mod-ens h2,
+.infosGenerales .mod-ens h2 {
+  font-weight: 600;
+}
+.interventions .mod-ens .sub-title,
+.infosGenerales .mod-ens .sub-title {
+  font-size: 18px;
+  color: var(--couleur-secondaire);
+}
+.interventions .mod-ens p,
+.infosGenerales .mod-ens p {
+  font-size: var(--taille-texte-principal);
+}
+.interventions .mod-ens hr,
+.infosGenerales .mod-ens hr {
+  height: 1px;
+  width: 100%;
+  background-color: var(--couleur-secondaire);
+  border: none;
+  margin-top: 10px;
+}
+.interventions .infos-ens,
+.infosGenerales .infos-ens {
+  display: flex;
+  flex-direction: column;
+  margin-top: 20px;
+  margin-right: 80px;
+}
+.interventions .onglet,
+.infosGenerales .onglet {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.interventions .onglet a,
+.infosGenerales .onglet a {
+  border: 1px solid #23345646;
+  border-radius: 8px;
+  padding: 5px 15px;
+  font-size: 18px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+.interventions .onglet a:hover,
+.infosGenerales .onglet a:hover {
+  background-color: var(--couleur-principal);
+  color: white;
+  border-color: #23345682;
 }
 
 /*******************************************
@@ -231,8 +297,12 @@ header hr {
 /*******************************************
                 Corps enseignant
 *******************************************/
-.corpsEnseignant main {
-  padding: 2% 4%;
+.corpsEnseignant .aside-page .menu-child:nth-child(3) {
+  background-color: var(--couleur-principal-hover);
+  color: white;
+}
+.corpsEnseignant .aside-page .menu-child:nth-child(3) img {
+  filter: brightness(0) invert(1);
 }
 .corpsEnseignant .top-main {
   display: flex;
@@ -339,5 +409,98 @@ header hr {
   font-weight: 500;
 }
 .corpsEnseignant .tableau-child p {
-  margin: 0px 3px;
+  margin: 0px 6px;
+}
+.corpsEnseignant .voirFiche {
+  display: flex;
+  gap: 5px;
+  transition: all 0.3s ease;
+}
+.corpsEnseignant .voirFiche:hover img {
+  transform: scale(1.2);
+}
+
+/*******************************************
+            FE: Infos générales
+*******************************************/
+.infosGenerales .aside-page .menu-child:nth-child(3) {
+  background-color: var(--couleur-principal);
+  color: white;
+}
+.infosGenerales .aside-page .menu-child:nth-child(3) img {
+  filter: brightness(0) invert(1);
+}
+.infosGenerales .onglet a:nth-child(1) {
+  color: white;
+  background-color: var(--couleur-principal);
+}
+.infosGenerales .infos-ens form {
+  display: flex;
+  flex-direction: column;
+  margin-top: 20px;
+  gap: 20px;
+}
+.infosGenerales .infos-ens form p {
+  color: var(--couleur-secondaire);
+  font-size: 18px;
+}
+.infosGenerales .input-form {
+  display: flex;
+  justify-content: space-between;
+}
+.infosGenerales .infos-ens .input-box {
+  display: flex;
+  flex-direction: column;
+  width: 32%;
+  font-size: var(--taille-texte-principal);
+  gap: 2px;
+}
+.infosGenerales .infos-ens input {
+  padding: 2%;
+  border: 1px solid #23345646;
+  border-radius: 5px;
+}
+.infosGenerales .infos-ens .select-form {
+  width: 100%;
+}
+.infosGenerales .infos-ens .select-form .ts-control .item {
+  background-color: #707070;
+  color: white;
+  border-radius: 5px;
+}
+.infosGenerales .infos-ens button {
+  border: 1px solid #23345682;
+  border-radius: 8px;
+  padding: 10px 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background-color: var(--couleur-principal);
+  color: white;
+  width: fit-content;
+}
+.infosGenerales .infos-ens button:hover {
+  background-color: var(--couleur-principal-hover);
+}
+.infosGenerales .msgEnvoie {
+  width: fit-content;
+  font-size: var(--taille-texte-secondaire);
+  border: 1px solid #179a00;
+  border-radius: 5px;
+  padding: 3px 9px;
+  background-color: #179a004c;
+  margin: -10px 0px;
+}
+/*******************************************
+            FE : interventions
+*******************************************/
+.interventions .aside-page .menu-child:nth-child(3) {
+  background-color: var(--couleur-principal);
+  color: white;
+}
+.interventions .aside-page .menu-child:nth-child(3) img {
+  filter: brightness(0) invert(1);
+}
+.interventions .onglet a:nth-child(2) {
+  color: white;
+  background-color: var(--couleur-principal);
 }
