@@ -82,11 +82,11 @@
         <div class="filAriane">
           <img src="assets/Home.svg" alt="Accueil" />
           <p>></p>
-          <p>Corps enseignant</p>
+          <a href="corps-enseignant.php">Corps enseignant</a>
           <p>></p>
           <p><?= htmlspecialchars($enseignant["first_name"]) ?> <?= htmlspecialchars($enseignant["last_name"]) ?></p>
           <p>></p>
-          <p>Informations générales</p>
+          <a href="">Informations générales</a>
         </div>
         <hr />
       </header>

@@ -78,7 +78,7 @@
         <div class="filAriane">
           <img src="assets/Home.svg" alt="Accueil" />
           <p>></p>
-          <p>Corps enseignant</p>
+          <a href="">Corps enseignant</a>
         </div>
         <hr />
       </header>
