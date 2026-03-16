@@ -47,9 +47,13 @@
             JOIN course_instructor ON course_instructor.course_id = course.id
             WHERE course_instructor.instructor_id = :instructorId
             AND course.start_date >= :debut
+            AND course.end_date <= :fin
+            AND course.module_id = :moduleId
         ");
         $requete->bindParam(":instructorId", $instructorId);
-        $requete->bindParam(":debut", $dateDebut);;
+        $requete->bindParam(":debut", $dateDebut);
+        $requete->bindParam(":fin", $dateFin);
+        $requete->bindParam(":moduleId", $moduleID);
 
         $requete->execute();
         $interventions = $requete->fetchAll(PDO::FETCH_ASSOC);
