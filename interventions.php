@@ -41,9 +41,9 @@
         JOIN course_instructor ON course_instructor.course_id = course.id
         WHERE course_instructor.instructor_id = :instructorId";
 
-    if(!empty($_POST["dateDebut"])) $requete .= " AND course.start_date >= :debut";
-    if(!empty($_POST["dateFin"])) $requete .= " AND course.end_date <= :fin";
-    if(!empty($_POST["module"])) $requete .= " AND course.module_id = :moduleId";
+    if(!empty($_POST["dateDebut"])) $requete = $requete . " AND course.start_date >= :debut";
+    if(!empty($_POST["dateFin"])) $requete = $requete . " AND course.end_date <= :fin";
+    if(!empty($_POST["module"])) $requete = $requete . " AND course.module_id = :moduleId";
 
     $requeteFinal = $connexion->prepare($requete);
     $requeteFinal->bindParam(":instructorId", $instructorId);
