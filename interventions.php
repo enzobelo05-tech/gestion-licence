@@ -25,42 +25,34 @@
     $instructor = $requeteInstructor->fetch(PDO::FETCH_ASSOC);
     $instructorId = $instructor["id"];
 
-    //* requete pour les id et les noms de tous les modules
-    $requeteModAll = $connexion->prepare("SELECT id, name FROM module");
-    $requeteModAll->execute();
-    $allMod = $requeteModAll->fetchAll(PDO::FETCH_ASSOC);
-
     //* envoie du form
     if ($_SERVER["REQUEST_METHOD"] === "POST"){
 
+        $moduleID = $_POST["module"];
         $dateDebut = $_POST["dateDebut"];
         $dateFin = $_POST["dateFin"];
-        $moduleID = $_POST["module"];
 
-       // var_dump($dateDebut);)
-
-        $requete = $connexion->prepare("
-            SELECT course.start_date, course.end_date, course.remotely, module.name AS module_name, intervention_type.name AS type_name
+        $requete = 
+            "SELECT course.start_date, course.end_date, course.remotely, module.name AS module_name, intervention_type.name AS type_name
             FROM course
             JOIN module ON module.id = course.module_id
             JOIN intervention_type ON intervention_type.id = course.intervention_type_id
             JOIN course_instructor ON course_instructor.course_id = course.id
-            WHERE course_instructor.instructor_id = :instructorId
-            AND course.start_date >= :debut
-            AND course.end_date <= :fin
-            AND course.module_id = :moduleId
-        ");
-        $requete->bindParam(":instructorId", $instructorId);
-        $requete->bindParam(":debut", $dateDebut);
-        $requete->bindParam(":fin", $dateFin);
-        $requete->bindParam(":moduleId", $moduleID);
+            WHERE course_instructor.instructor_id = :instructorId";
 
-        $requete->execute();
-        $interventions = $requete->fetchAll(PDO::FETCH_ASSOC);
+        (!empty($_POST["dateDebut"])) ? $requete = $requete . " AND course.start_date >= :debut" : "";
+        (!empty($_POST["dateFin"])) ? $requete = $requete . " AND course.end_date <= :fin" : "";
+        (!empty($_POST["module"])) ? $requete = $requete . " AND course.module_id = :moduleId" : "";
+
+        $requeteFinal = $connexion->prepare($requete);
+        $requeteFinal->bindParam(":instructorId", $instructorId);
+        (!empty($_POST["dateDebut"])) ? $requeteFinal->bindValue(":debut", $dateDebut) : "";
+        (!empty($_POST["dateFin"])) ? $requeteFinal->bindValue(":fin", $dateFin) : "";
+        (!empty($_POST["module"])) ? $requeteFinal->bindValue(":moduleId", $moduleID) : "";
+
+        $requeteFinal->execute();
+        $interventions = $requeteFinal->fetchAll(PDO::FETCH_ASSOC);
     }
-
-    //* requete pour les filtres du tableau
-
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -161,8 +153,9 @@
                 <div class="input-box">
                     <label for="module">Module</label>
                     <select name="module">
+                        <option value="">Selectionnez le module</option>
                         <?php 
-                            foreach ($allMod as $mod){
+                            foreach ($enseignantInfo as $mod){
                                 ?>
                                 <option value="<?= htmlspecialchars($mod["id"]) ?>"><?= htmlspecialchars($mod["name"]) ?></option>
                                 <?php
@@ -186,47 +179,39 @@
               <p>Date de l'intervention</p>
               <p>Module</p>
               <p>Type</p>
-              <p>Intervention</p>
+              <p>Intervenant</p>
               <p>En visio</p>
             </div>
             <?php 
               if(isset($interventions)){
 
                 foreach($interventions as $inter){
+                  $dateDebut = new DateTime($inter["start_date"]);
+                  $dateFin = new DateTime($inter["end_date"]);
+                  $dateFormatee = $dateDebut->format("d/m/Y");
+                  $heureDebut = $dateDebut->format("h\hi");
+                  $heureFin = $dateFin->format("h\hi");
+
+                  $initial = $enseignant["first_name"]; 
                   ?>
                   <div class="tableau-child">
-                    <p><?= var_dump($inter["start_date"])?></p>
+                    <p><?= htmlspecialchars($dateFormatee) ?> <br> <?= htmlspecialchars($heureDebut) . " à " . htmlspecialchars($heureFin) ?></p>
                     <p><?= htmlspecialchars($inter["module_name"]) ?></p>
-                    <p>
-                  <?php
+                    <p><?= htmlspecialchars($inter["type_name"]) ?></p>
+                    <p><?= htmlspecialchars($initial[0]) ?>. <?= htmlspecialchars($enseignant["last_name"]) ?></p>
 
-                  $idMod = $e["module_id"];
-                  $requete = $connexion->prepare("SELECT module.name, module.hours_count FROM user JOIN instructor ON instructor.user_id = user.id JOIN instructor_module ON instructor_module.instructor_id = instructor.id JOIN module ON module.id = instructor_module.module_id WHERE user.id = :id");
-                  $requete->bindParam(":id", $id);
-
-                  $requete->execute();
-                  $enseignantInfo = $requete->fetchAll(PDO::FETCH_ASSOC);
-
-                  if($enseignantInfo){
-                    $heure = 0;
-                    foreach($enseignantInfo as $en){
-                      ?>
-                          <?= htmlspecialchars($en["name"]) ?>
-                      <?php
-                      $heure += $en["hours_count"];
-                    }
-                    ?>
-                        </p>
-
-                        <p><?= $heure ?>h</p>
-                        
                     <?php
-                  }
-                  ?>
-                    <div class="voirFiche">
-                      <img src="assets/SeeMore.png" alt="Voir plus">
-                      <a href="infos-generales.php?id=<?= htmlspecialchars($e['id']) ?>">Accéder à la fiche</a>
-                    </div>
+                        if ($inter["remotely"]){
+                            ?>
+                            <img src="assets/visio.png" alt="En visio-conférences" class="visioImg">
+                            <?php
+                        }else{
+                            ?>
+                            <img src="assets/novisio.png" alt="Pas en visio-conférences" class="visioImg">
+                            <?php
+                        }
+                    ?>
+
                   </div>
                   <?php
                 }
