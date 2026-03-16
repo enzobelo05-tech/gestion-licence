@@ -5,18 +5,33 @@
 
   if($_SERVER['REQUEST_METHOD'] === 'POST'){
     $count = 0;
+    $cond = "WHERE";
 
-    $nom = '%' . $_POST["nom"] . '%';
-    $prenom = '%' . $_POST["prenom"] . '%';
-    $email = '%' . $_POST["email"] . '%';
+    $nom = $_POST["nom"];
+    $prenom = $_POST["prenom"];
+    $email = $_POST["email"];
 
-    $requete = $connexion->prepare("SELECT id, last_name, first_name, email FROM user WHERE last_name LIKE :nom AND first_name LIKE :prenom AND email LIKE :email AND role = 'instructor'" );
-    $requete->bindParam(":nom", $nom);
-    $requete->bindParam(":prenom", $prenom);
-    $requete->bindParam(":email", $email);
+    $requete = "SELECT * FROM user ";
 
-    $requete->execute();
-    $enseignant = $requete->fetchAll(PDO::FETCH_ASSOC);
+    if(!empty($_POST["nom"])){
+      $requete = $requete . "$cond last_name LIKE :nom";
+      $cond = "AND";
+    }
+    if(!empty($_POST["prenom"])){
+      $requete = $requete . "$cond first_name LIKE :prenom";
+      $cond = "AND";
+    }
+    if(!empty($_POST["email"])){
+      $requete = $requete . "$cond email LIKE :email";
+    }
+
+    $requeteFinal = $connexion->prepare($requete . " AND role = 'instructor' ORDER BY last_name ASC");
+    (!empty($_POST["nom"])) ? $requeteFinal->bindValue(":nom", '%' . $nom . '%') : "";
+    (!empty($_POST["prenom"])) ? $requeteFinal->bindValue(":prenom", '%' . $prenom . '%') : "";
+    (!empty($_POST["email"])) ? $requeteFinal->bindValue(":email", '%' . $email . '%') : "";
+
+    $requeteFinal->execute();
+    $enseignant = $requeteFinal->fetchAll(PDO::FETCH_ASSOC);
   }
 
 ?>
