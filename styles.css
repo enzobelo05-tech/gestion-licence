@@ -508,3 +508,78 @@ header hr {
   color: white;
   background-color: var(--couleur-principal);
 }
+.interventions .form-title {
+  font-size: 18px;
+  color: var(--couleur-secondaire);
+  margin: 20px 0px;
+}
+.interventions form {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  font-size: var(--taille-texte-principal);
+}
+.interventions form .input-box {
+  display: flex;
+  flex-direction: column;
+  width: 27%;
+  gap: 5px;
+}
+.interventions form button {
+  width: 14%;
+  background-color: var(--couleur-secondaire);
+  color: black;
+  padding: 7px 0px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-size: var(--taille-texte-principal);
+  transition: all 0.3s ease;
+  height: fit-content;
+}
+.interventions form button:hover {
+  background-color: var(--couleur-secondaire-hover);
+}
+.interventions form select,
+.interventions form input {
+  border-radius: 5px;
+  padding: 7px 10px;
+  border: 1px solid #23345645;
+  color: black;
+  background-color: white;
+}
+.interventions .infos-ens hr {
+  border: 1px solid var(--couleur-secondaire);
+  margin-top: 10px;
+}
+.interventions .infos-ens h3 {
+  margin: 20px 0px;
+}
+.interventions .tableau-child:nth-child(1) {
+  font-size: var(--taille-texte-secondaire);
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  align-items: center;
+  padding: 15px 10px;
+  background-color: #00000008;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+  color: #000000c8;
+}
+.interventions .tableau-child {
+  font-size: var(--taille-texte-secondaire);
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  align-items: center;
+  padding: 12px 10px;
+  border-bottom: 2px solid #00000008;
+  font-weight: 500;
+}
+.interventions .tableau-child p {
+  margin: 0px 6px;
+}
+.interventions .visioImg {
+  height: 16px;
+  width: 16px;
+  margin-left: 20px;
+}
