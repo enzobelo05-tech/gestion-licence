@@ -2,6 +2,7 @@
     require_once "config.php";
 
     $id = $_GET["id"];
+    $count = 0;
 
     //* requete pour les infos du user
     $requeteID = $connexion->prepare("SELECT * FROM user WHERE id = :id");
@@ -23,6 +24,38 @@
     $requeteInstructor->execute();
     $instructor = $requeteInstructor->fetch(PDO::FETCH_ASSOC);
     $instructorId = $instructor["id"];
+
+    //* requete pour les id et les noms de tous les modules
+    $requeteModAll = $connexion->prepare("SELECT id, name FROM module");
+    $requeteModAll->execute();
+    $allMod = $requeteModAll->fetchAll(PDO::FETCH_ASSOC);
+
+    //* envoie du form
+    if ($_SERVER["REQUEST_METHOD"] === "POST"){
+
+        $dateDebut = $_POST["dateDebut"];
+        $dateFin = $_POST["dateFin"];
+        $moduleID = $_POST["module"];
+
+       // var_dump($dateDebut);)
+
+        $requete = $connexion->prepare("
+            SELECT course.start_date, course.end_date, course.remotely, module.name AS module_name, intervention_type.name AS type_name
+            FROM course
+            JOIN module ON module.id = course.module_id
+            JOIN intervention_type ON intervention_type.id = course.intervention_type_id
+            JOIN course_instructor ON course_instructor.course_id = course.id
+            WHERE course_instructor.instructor_id = :instructorId
+            AND course.start_date >= :debut
+        ");
+        $requete->bindParam(":instructorId", $instructorId);
+        $requete->bindParam(":debut", $dateDebut);;
+
+        $requete->execute();
+        $interventions = $requete->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    //* requete pour les filtres du tableau
 
 ?>
 <!DOCTYPE html>
@@ -111,6 +144,91 @@
                 <a href="infos-generales.php?id=<?= $id ?>">Informations générales</a>
                 <a href="">Interventions</a>
             </div>
+            <p class="form-title">Filtrer les interventions</p>
+            <form action="" method="POST">
+                <div class="input-box">
+                    <label for="dateDebut">Date de début</label>
+                    <input type="datetime-local" name="dateDebut">
+                </div>
+                <div class="input-box">
+                    <label for="dateFin">Date de fin</label>
+                    <input type="datetime-local" name="dateFin">
+                </div>
+                <div class="input-box">
+                    <label for="module">Module</label>
+                    <select name="module">
+                        <?php 
+                            foreach ($allMod as $mod){
+                                ?>
+                                <option value="<?= htmlspecialchars($mod["id"]) ?>"><?= htmlspecialchars($mod["name"]) ?></option>
+                                <?php
+                            }
+                        ?>
+                    </select>
+                </div>
+                <button type="submit" class="filter-btn">Filtrer</button>
+            </form>
+            <hr>
+            <?php
+            if (isset($interventions)){
+              foreach($interventions as $int){
+                $count += 1;
+              } 
+            }
+          ?>
+          <h3><?= $count ?> enseignant trouvé(s)</h3>
+          <div class="tableau">
+            <div class="tableau-child">
+              <p>Date de l'intervention</p>
+              <p>Module</p>
+              <p>Type</p>
+              <p>Intervention</p>
+              <p>En visio</p>
+            </div>
+            <?php 
+              if(isset($interventions)){
+
+                foreach($interventions as $inter){
+                  ?>
+                  <div class="tableau-child">
+                    <p><?= var_dump($inter["start_date"])?></p>
+                    <p><?= htmlspecialchars($inter["module_name"]) ?></p>
+                    <p>
+                  <?php
+
+                  $idMod = $e["module_id"];
+                  $requete = $connexion->prepare("SELECT module.name, module.hours_count FROM user JOIN instructor ON instructor.user_id = user.id JOIN instructor_module ON instructor_module.instructor_id = instructor.id JOIN module ON module.id = instructor_module.module_id WHERE user.id = :id");
+                  $requete->bindParam(":id", $id);
+
+                  $requete->execute();
+                  $enseignantInfo = $requete->fetchAll(PDO::FETCH_ASSOC);
+
+                  if($enseignantInfo){
+                    $heure = 0;
+                    foreach($enseignantInfo as $en){
+                      ?>
+                          <?= htmlspecialchars($en["name"]) ?>
+                      <?php
+                      $heure += $en["hours_count"];
+                    }
+                    ?>
+                        </p>
+
+                        <p><?= $heure ?>h</p>
+                        
+                    <?php
+                  }
+                  ?>
+                    <div class="voirFiche">
+                      <img src="assets/SeeMore.png" alt="Voir plus">
+                      <a href="infos-generales.php?id=<?= htmlspecialchars($e['id']) ?>">Accéder à la fiche</a>
+                    </div>
+                  </div>
+                  <?php
+                }
+              }
+            ?>
+          </div>
         </section>
       </main>
     </div>
