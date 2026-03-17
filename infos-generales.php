@@ -73,49 +73,7 @@
     <script src="https://cdn.jsdelivr.net/npm/tom-select/dist/js/tom-select.complete.min.js"></script>
 </head>
 <body class="infosGenerales">
-    <aside class="aside-page">
-      <nav>
-        <div class="logo">
-          <img src="assets/logo.png" alt="Logo Lycée" />
-          <div class="logo-container">
-            <p>Lycée Saint-Vincent</p>
-            <span>Enseignement Supérieur</span>
-          </div>
-        </div>
-        <div class="navigation">
-          <div class="menu">
-            <p class="nav-title">MENU</p>
-            <div class="menu-nav">
-              <div class="menu-child">
-                <img src="assets/Calendrier.svg" alt="Calendrier" />
-                <p>Calendrier</p>
-              </div>
-              <div class="menu-child">
-                <img src="assets/Intervention.svg" alt="Interventions" />
-                <p>Interventions</p>
-              </div>
-              <div class="menu-child">
-                <img src="assets/CorpsEnseignant.svg" alt="Corps Enseignant" />
-                <p>Corps enseignant</p>
-              </div>
-            </div>
-          </div>
-          <div class="parametrage">
-            <p class="nav-title">PARAMETRAGE</p>
-            <div class="parametrage-nav">
-              <div class="parametrage-child">
-                <img src="assets/Module.svg" alt="Modules" />
-                <p>Modules</p>
-              </div>
-              <div class="parametrage-child">
-                <img src="assets/Intervention.svg" alt="Types Interventions" />
-                <p>Types d'intervention</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </nav>
-    </aside>
+    <?php require "html-commun/aside.html"; ?>
     <div class="right-page">
       <header>
         <div class="filAriane">
