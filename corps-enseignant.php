@@ -3,7 +3,8 @@
 
   $count = 0;
 
-  if($_SERVER['REQUEST_METHOD'] === 'POST'){
+  // Form pour le filtre
+  if(isset($_POST["nom"]) && isset($_POST["prenom"]) && isset($_POST["email"])){
     $count = 0;
     $cond = "WHERE";
 
@@ -23,15 +24,45 @@
     }
     if(!empty($_POST["email"])){
       $requete = $requete . "$cond email LIKE :email";
+      $cond  ="AND";
     }
 
-    $requeteFinal = $connexion->prepare($requete . " AND role = 'instructor' ORDER BY last_name ASC");
+    $requeteFinal = $connexion->prepare($requete . " $cond role = 'instructor'");
     (!empty($_POST["nom"])) ? $requeteFinal->bindValue(":nom", '%' . $nom . '%') : "";
     (!empty($_POST["prenom"])) ? $requeteFinal->bindValue(":prenom", '%' . $prenom . '%') : "";
     (!empty($_POST["email"])) ? $requeteFinal->bindValue(":email", '%' . $email . '%') : "";
 
     $requeteFinal->execute();
     $enseignant = $requeteFinal->fetchAll(PDO::FETCH_ASSOC);
+  }
+
+  // Form pour ajouter un enseignant
+  if(isset($_POST["nomIns"]) && isset($_POST["prenomIns"]) && isset($_POST["emailIns"]) && isset($_POST["mdpIns"])){
+
+    $nom = $_POST["nomIns"];
+    $prenom = $_POST["prenomIns"];
+    $email = $_POST["emailIns"];
+    $mdp = password_hash($_POST["mdpIns"], PASSWORD_ARGON2I);
+
+    $requete = $connexion->prepare("
+      INSERT INTO user 
+      (role, last_name, first_name, email, password) 
+      VALUES ('instructor', :nom, :prenom, :email, :mdp)
+      ");
+    $requete->bindParam(":nom", $nom);
+    $requete->bindParam(":prenom", $prenom);
+    $requete->bindParam(":email", $email);
+    $requete->bindParam(":mdp", $mdp);
+
+    $requete->execute();
+
+    // Création de l'instructor
+    $newId = $connexion->lastInsertId();
+
+    $requeteIns = $connexion->prepare("INSERT INTO instructor (user_id) VALUES (:id)");
+    $requeteIns->bindParam(":id", $newId);
+
+    $requeteIns->execute();
   }
 
 ?>
@@ -43,6 +74,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Corps Enseignant</title>
     <link rel="stylesheet" href="styles.css" />
+    <script src="script.js" defer></script>
   </head>
   <body class="corpsEnseignant">
     <aside class="aside-page">
@@ -100,7 +132,7 @@
       <main>
         <div class="top-main">
           <h2>Corps enseignant</h2>
-          <button type="submit" value="add">Ajouter un enseignant</button>
+          <button type="submit" value="add" class="addInstructor">Ajouter un enseignant</button>
         </div>
         <section class="form-parent">
           <p class="filter-txt">Filtre</p>
@@ -188,5 +220,38 @@
         </section>
       </main>
     </div>
+    <section class="popUp">
+      <p class="close-btn-popUp">x</p>
+      <div class="popUp-main">
+        <div class="popUp-header">
+          <img src="assets/plusSymbole.png" alt="Ajouter" class="left">
+          <div class="right">
+            <h2>Ajouter un enseignant</h2>
+            <p>Remplissez les informations ci-dessous</p>
+          </div>
+        </div>
+        <form action="" method="POST" class="formulaire">
+          <div class="input-box">
+            <label for="nomIns">Nom de l'enseignant</label>
+            <input type="text" name="nomIns" placeholder="Legrand">
+          </div>
+          <div class="input-box">
+            <label for="prenomIns">Prénom de l'enseignant</label>
+            <input type="text" name="prenomIns" placeholder="Paul">
+          </div>
+          <div class="input-box">
+            <label for="emailIns">Email de l'enseignant</label>
+            <input type="email" name="emailIns" placeholder="Paul.Legrand@gmail.com">
+          </div>
+          <div class="input-box">
+            <label for="mdpIns">Mot de passe de l'enseignant</label>
+            <input type="password" name="mdpIns" placeholder="••••••••">
+          </div>
+          <p class="cancel-btn-popUp">Annuler</p>
+          <button type="submit" class="confirm-btn">Confirmer</button>
+        </form>
+      </div>
+    </section>
+    <div class="overlay"></div>
   </body>
 </html>
