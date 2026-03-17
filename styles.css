@@ -211,6 +211,71 @@ header hr {
   border-color: #23345682;
 }
 
+/***** popUp *****/
+.blur {
+  filter: opacity(20%);
+  pointer-events: none;
+}
+.overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(166, 166, 166, 0.7);
+  z-index: 999;
+}
+.popUp {
+  display: none;
+  flex-direction: column;
+  position: fixed;
+  width: fit-content;
+  height: fit-content;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1000;
+  background-color: white;
+  border: 1px solid #eaeaea;
+  border-radius: 5px;
+  padding: 20px;
+  backdrop-filter: var(--couleur-principal);
+}
+.popUp .close-btn-popUp {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  align-self: flex-end;
+  width: 20px;
+  height: 20px;
+  background-color: #eaeaea;
+  border-radius: 50%;
+  cursor: pointer;
+}
+.popUp-header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 40px;
+}
+.popUp-header .left {
+  height: 22px;
+  width: 22px;
+  font-size: 50px;
+  background-color: #eaeaea;
+  border-radius: 5px;
+  padding: 12px;
+}
+.popUp-header .right h2 {
+  color: #404040;
+}
+.popUp-header .right p {
+  font-size: var(--taille-texte-secondaire);
+  color: #b4b4b4;
+}
+
 /*******************************************
                 Page Connexion
 *******************************************/
@@ -419,6 +484,40 @@ header hr {
 }
 .corpsEnseignant .voirFiche:hover img {
   transform: scale(1.2);
+}
+.corpsEnseignant .popUp .formulaire {
+  display: grid;
+  grid-template-columns: repeat(2, 3fr);
+  gap: 20px;
+  width: 100vh;
+}
+.corpsEnseignant .popUp .formulaire .input-box {
+  width: 100%;
+}
+.corpsEnseignant .popUp .confirm-btn,
+.corpsEnseignant .popUp .cancel-btn-popUp {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 5px;
+  padding: 10px 0px;
+  margin-top: 20px;
+  width: 100%;
+  cursor: pointer;
+  transform: all 0.3s ease;
+}
+.corpsEnseignant .popUp .confirm-btn {
+  color: white;
+  background-color: var(--couleur-principal);
+}
+.corpsEnseignant .popUp .confirm-btn:hover {
+  background-color: var(--couleur-principal-hover);
+}
+.corpsEnseignant .popUp .cancel-btn-popUp {
+  background-color: #eaeaea;
+}
+.corpsEnseignant .popUp .cancel-btn-popUp:hover {
+  background-color: #dadada;
 }
 
 /*******************************************
