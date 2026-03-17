@@ -120,7 +120,7 @@ main {
 .aside-page .parametrage-child:hover,
 .aside-page .menu-child:hover {
   cursor: pointer;
-  background-color: var(--couleur-principal);
+  background-color: var(--couleur-principal-hover);
   color: white;
 }
 .aside-page .parametrage-child:hover img,
@@ -687,4 +687,15 @@ header hr {
   height: 16px;
   width: 16px;
   margin-left: 20px;
+}
+
+/*******************************************
+                  Calendrier
+*******************************************/
+.calendrier .aside-page .menu-child:nth-child(1) {
+  background-color: var(--couleur-principal-hover);
+  color: white;
+}
+.calendrier .aside-page .menu-child:nth-child(1) img {
+  filter: brightness(0) invert(1);
 }
