@@ -1,5 +1,5 @@
 <?php 
-  require_once "config.php";
+  require_once "variable-connexion/config.php";
 
   $count = 0;
 
