@@ -548,12 +548,18 @@ header hr {
   color: black;
   background-color: white;
 }
+.interventions .infos-ens {
+  margin-right: 0px !important;
+}
 .interventions .infos-ens hr {
   border: 1px solid var(--couleur-secondaire);
   margin-top: 10px;
 }
 .interventions .infos-ens h3 {
   margin: 20px 0px;
+}
+.interventions .tableau {
+  margin-right: 80px;
 }
 .interventions .tableau-child:nth-child(1) {
   font-size: var(--taille-texte-secondaire);
