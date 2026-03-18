@@ -6,28 +6,18 @@
   // Form pour le filtre
   if(isset($_POST["nom"]) && isset($_POST["prenom"]) && isset($_POST["email"])){
     $count = 0;
-    $cond = "WHERE";
 
     $nom = $_POST["nom"];
     $prenom = $_POST["prenom"];
     $email = $_POST["email"];
 
-    $requete = "SELECT * FROM user ";
+    $requete = "SELECT * FROM user WHERE 1=1 ";
 
-    if(!empty($_POST["nom"])){
-      $requete = $requete . "$cond last_name LIKE :nom";
-      $cond = "AND";
-    }
-    if(!empty($_POST["prenom"])){
-      $requete = $requete . "$cond first_name LIKE :prenom";
-      $cond = "AND";
-    }
-    if(!empty($_POST["email"])){
-      $requete = $requete . "$cond email LIKE :email";
-      $cond  ="AND";
-    }
+    if(!empty($_POST["nom"])) $requete .= "AND last_name LIKE :nom ";
+    if(!empty($_POST["prenom"])) $requete .= "AND first_name LIKE :prenom ";
+    if(!empty($_POST["email"])) $requete .= "AND email LIKE :email ";
 
-    $requeteFinal = $connexion->prepare($requete . " $cond role = 'instructor'");
+    $requeteFinal = $connexion->prepare($requete . "AND role = 'instructor'");
     (!empty($_POST["nom"])) ? $requeteFinal->bindValue(":nom", '%' . $nom . '%') : "";
     (!empty($_POST["prenom"])) ? $requeteFinal->bindValue(":prenom", '%' . $prenom . '%') : "";
     (!empty($_POST["email"])) ? $requeteFinal->bindValue(":email", '%' . $email . '%') : "";
@@ -56,7 +46,6 @@
 
     $requete->execute();
 
-    // Création de l'instructor
     $newId = $connexion->lastInsertId();
 
     $requeteIns = $connexion->prepare("INSERT INTO instructor (user_id) VALUES (:id)");
@@ -97,11 +86,7 @@
           <form action="" method="POST">
             <div class="input-box">
               <label for="nom">Nom de famille</label>
-              <input
-                type="text"
-                name="nom"
-                placeholder="Saisissez le nom de famille"
-              />
+              <input type="text" name="nom" placeholder="Saisissez le nom de famille" />
             </div>
             <div class="input-box">
               <label for="prenom">Prénom</label>
@@ -133,7 +118,6 @@
             </div>
             <?php 
               if(isset($enseignant)){
-
                 foreach($enseignant as $e){
                   ?>
                   <div class="tableau-child">
@@ -145,7 +129,6 @@
                   $id = $e["id"];
                   $requete = $connexion->prepare("SELECT module.name, module.hours_count FROM user JOIN instructor ON instructor.user_id = user.id JOIN instructor_module ON instructor_module.instructor_id = instructor.id JOIN module ON module.id = instructor_module.module_id WHERE user.id = :id");
                   $requete->bindParam(":id", $id);
-
                   $requete->execute();
                   $enseignantInfo = $requete->fetchAll(PDO::FETCH_ASSOC);
 
@@ -159,9 +142,7 @@
                     }
                     ?>
                         </p>
-
                         <p><?= $heure ?>h</p>
-                        
                     <?php
                   }
                   ?>
