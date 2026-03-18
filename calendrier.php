@@ -15,6 +15,7 @@
     JOIN course_instructor ON course_instructor.course_id = course.id
     WHERE start_date >= :dateActuel
     AND end_date <= :dateFin
+    GROUP BY course.id
     ORDER BY start_date DESC
     ");
     $requete->bindParam(":dateActuel", $dateActuel);
@@ -25,18 +26,21 @@
 
     // Requete tous les modules
     $requeteMod = $connexion->prepare("SELECT id, name FROM module");
-
     $requeteMod->execute();
     $allMod = $requeteMod->fetchAll(PDO::FETCH_ASSOC);
 
     // Requete tous les type d'interventions
     $requeteType = $connexion->prepare("SELECT id, name FROM intervention_type");
-
     $requeteType->execute();
     $allType = $requeteType->fetchAll(PDO::FETCH_ASSOC);
 
     // Requete tous les instructor
-    $requeteInstru = $connexion->prepare("SELECT id, last_name, first_name FROM user WHERE role = 'instructor'");
+    $requeteInstru = $connexion->prepare("
+        SELECT instructor.id, user.last_name, user.first_name 
+        FROM user 
+        JOIN instructor ON instructor.user_id = user.id
+        WHERE user.role = 'instructor'
+    ");
 
     $requeteInstru->execute();
     $allInstru = $requeteInstru->fetchAll(PDO::FETCH_ASSOC);
@@ -58,7 +62,7 @@
         $diffHeures = $diff->h + ($diff->days * 24);
 
         if ($diffHeures <= 4 && $diffHeures > 0){
-            
+    
             $requeteAddCourse = $connexion->prepare("
                 INSERT INTO course (title, start_date, end_date, remotely, intervention_type_id, module_id) 
                 VALUES (:titre, :dateDebut, :dateFin, :remotely, :type, :module)
@@ -69,11 +73,13 @@
             $requeteAddCourse->bindParam(":remotely", $remotely);
             $requeteAddCourse->bindParam(":type", $type);
             $requeteAddCourse->bindParam(":module", $module);
-            
+
             $requeteAddCourse->execute();
 
             $newCourseId = $connexion->lastInsertId();
+
             foreach ($intervenant as $int){
+                // Lier instructor à la course
                 $requeteAddCourseInstructor = $connexion->prepare("
                     INSERT INTO course_instructor (course_id, instructor_id) 
                     VALUES (:courseId, :instruId)
@@ -82,6 +88,28 @@
                 $requeteAddCourseInstructor->bindParam(":instruId", $int);
 
                 $requeteAddCourseInstructor->execute();
+
+                // Verif si instructor a deja le module
+                $requeteCheckModule = $connexion->prepare("
+                    SELECT instructor_id FROM instructor_module 
+                    WHERE instructor_id = :instruId AND module_id = :moduleId
+                ");
+                $requeteCheckModule->bindParam(":instruId", $int);
+                $requeteCheckModule->bindParam(":moduleId", $module);
+
+                $requeteCheckModule->execute();
+
+                // Ajout module si non présent
+                if ($requeteCheckModule->rowCount() === 0){
+                    $requeteAddModule = $connexion->prepare("
+                        INSERT INTO instructor_module (instructor_id, module_id) 
+                        VALUES (:instruId, :moduleId)
+                    ");
+                    $requeteAddModule->bindParam(":instruId", $int);
+                    $requeteAddModule->bindParam(":moduleId", $module);
+
+                    $requeteAddModule->execute();
+                }
             }
         }else{
             $erreurHeure = "flex";
@@ -131,9 +159,8 @@
                     $dateDebut = new DateTime($i["start_date"]);
                     $dateFin = new DateTime($i["end_date"]);
                     $dateFormatee = $dateDebut->format("d/m/Y");
-                    $heureDebut = $dateDebut->format("h\hi");
-                    $heureFin = $dateFin->format("h\hi");
-
+                    $heureDebut = $dateDebut->format("H\hi");
+                    $heureFin = $dateFin->format("H\hi");
                     ?>
                     <div class="tableau-child">
                     <p><?= htmlspecialchars($dateFormatee) ?> <br> <?= htmlspecialchars($heureDebut) . " à " . htmlspecialchars($heureFin) ?></p>
@@ -151,7 +178,6 @@
                         WHERE course.id = :courseId
                     ");
                     $requeteEns->bindParam(":courseId", $i["course_id"]);
-
                     $requeteEns->execute();
                     $enseignants = $requeteEns->fetchAll(PDO::FETCH_ASSOC);
 
@@ -225,7 +251,7 @@
             <div class="input-box">
                 <label for="typeInter">Type d'intervention - champs obligatoire</label>
                 <select name="typeInter" required>
-                    <option value="">Sélectionez le module</option>
+                    <option value="">Sélectionez le type</option>
                     <?php 
                         foreach ($allType as $t){
                             ?>
