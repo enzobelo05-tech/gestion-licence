@@ -13,9 +13,9 @@
 
     $requete = "SELECT * FROM user WHERE 1=1 ";
 
-    if(!empty($_POST["nom"])) $requete .= "AND last_name LIKE :nom ";
-    if(!empty($_POST["prenom"])) $requete .= "AND first_name LIKE :prenom ";
-    if(!empty($_POST["email"])) $requete .= "AND email LIKE :email ";
+    if(!empty($_POST["nom"])) $requete = $requete . "AND last_name LIKE :nom ";
+    if(!empty($_POST["prenom"])) $requete = $requete . "AND first_name LIKE :prenom ";
+    if(!empty($_POST["email"])) $requete = $requete . "AND email LIKE :email ";
 
     $requeteFinal = $connexion->prepare($requete . "AND role = 'instructor'");
     (!empty($_POST["nom"])) ? $requeteFinal->bindValue(":nom", '%' . $nom . '%') : "";
