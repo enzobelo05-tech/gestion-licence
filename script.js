@@ -1,4 +1,5 @@
 const addInstructor = document.querySelector(".addInstructor");
+const addInter = document.querySelector(".addInter");
 const popUp = document.querySelector(".popUp");
 const popUpCloseBtn = document.querySelector(".close-btn-popUp");
 const popUpCancelBtn = document.querySelector(".cancel-btn-popUp");
@@ -8,6 +9,12 @@ const overlay = document.querySelector(".overlay");
 
 if (addInstructor) {
   addInstructor.addEventListener("click", () => {
+    popUp.style.display = "flex";
+    overlay.style.display = "block";
+  });
+}
+if (addInter) {
+  addInter.addEventListener("click", () => {
     popUp.style.display = "flex";
     overlay.style.display = "block";
   });

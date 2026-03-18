@@ -46,6 +46,51 @@ main {
   padding: 2% 4%;
 }
 
+/***** btn switch *****/
+.btn-switch {
+  display: flex;
+  gap: 10px;
+}
+.toggleSwitch {
+  position: relative;
+  display: inline-block;
+  width: 40px;
+  height: 22px;
+}
+.toggleSwitch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+.toggleSwitch .slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  border-radius: 22px;
+  transition: 0.3s;
+}
+.toggleSwitch .slider::before {
+  content: "";
+  position: absolute;
+  height: 16px;
+  width: 16px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  border-radius: 50%;
+  transition: 0.3s;
+}
+.toggleSwitch input:checked + .slider {
+  background-color: var(--couleur-principal);
+}
+.toggleSwitch input:checked + .slider::before {
+  transform: translateX(18px);
+}
+
 /*** Aside ***/
 .aside-page {
   width: 22%;
@@ -120,7 +165,7 @@ main {
 .aside-page .parametrage-child:hover,
 .aside-page .menu-child:hover {
   cursor: pointer;
-  background-color: var(--couleur-principal);
+  background-color: var(--couleur-principal-hover);
   color: white;
 }
 .aside-page .parametrage-child:hover img,
@@ -274,6 +319,67 @@ header hr {
 .popUp-header .right p {
   font-size: var(--taille-texte-secondaire);
   color: #b4b4b4;
+}
+.formulaire .input-box select,
+.formulaire .input-box input {
+  border-radius: 5px;
+  padding: 9px 10px;
+  border: 1px solid #23345645;
+  color: black;
+  background-color: white;
+}
+.formulaire .input-box {
+  width: 100%;
+  gap: 5px;
+  display: flex;
+  flex-direction: column;
+  font-size: var(--taille-texte-principal);
+}
+.formulaire form button {
+  width: 14%;
+  background-color: var(--couleur-secondaire);
+  color: black;
+  padding: 8px 0px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-size: var(--taille-texte-principal);
+  transition: all 0.3s ease;
+  height: fit-content;
+}
+.formulaire select:has(option[value=""]:checked) {
+  color: #565656ba;
+}
+.popUp .confirm-btn,
+.popUp .cancel-btn-popUp {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 5px;
+  padding: 10px 0px;
+  width: 100%;
+  cursor: pointer;
+  transform: all 0.3s ease;
+  border: none;
+}
+.popUp .confirm-btn {
+  color: white;
+  background-color: var(--couleur-principal);
+}
+.popUp .confirm-btn:hover {
+  background-color: var(--couleur-principal-hover);
+}
+.popUp .cancel-btn-popUp {
+  background-color: #eaeaea;
+}
+.popUp .cancel-btn-popUp:hover {
+  background-color: #dadada;
+}
+.popUp .btn-form {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
 }
 
 /*******************************************
@@ -491,34 +597,6 @@ header hr {
   gap: 20px;
   width: 100vh;
 }
-.corpsEnseignant .popUp .formulaire .input-box {
-  width: 100%;
-}
-.corpsEnseignant .popUp .confirm-btn,
-.corpsEnseignant .popUp .cancel-btn-popUp {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 5px;
-  padding: 10px 0px;
-  margin-top: 20px;
-  width: 100%;
-  cursor: pointer;
-  transform: all 0.3s ease;
-}
-.corpsEnseignant .popUp .confirm-btn {
-  color: white;
-  background-color: var(--couleur-principal);
-}
-.corpsEnseignant .popUp .confirm-btn:hover {
-  background-color: var(--couleur-principal-hover);
-}
-.corpsEnseignant .popUp .cancel-btn-popUp {
-  background-color: #eaeaea;
-}
-.corpsEnseignant .popUp .cancel-btn-popUp:hover {
-  background-color: #dadada;
-}
 
 /*******************************************
             FE: Infos générales
@@ -687,4 +765,103 @@ header hr {
   height: 16px;
   width: 16px;
   margin-left: 20px;
+}
+
+/*******************************************
+                  Calendrier
+*******************************************/
+.calendrier .aside-page .menu-child:nth-child(1) {
+  background-color: var(--couleur-principal-hover);
+  color: white;
+}
+.calendrier .aside-page .menu-child:nth-child(1) img {
+  filter: brightness(0) invert(1);
+}
+.calendrier .top-main {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: var(--couleur-principal-hover);
+}
+.calendrier .top-main h2 {
+  font-weight: 600;
+}
+.calendrier .top-main button {
+  background-color: var(--couleur-principal);
+  color: white;
+  padding: 8px 20px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-size: var(--taille-texte-principal);
+  transition: all 0.3s ease;
+}
+.calendrier .top-main button:hover {
+  background-color: var(--couleur-principal-hover);
+}
+.calendrier h3 {
+  font-size: 20px;
+  margin-top: 20px;
+}
+.calendrier .tableau {
+  display: flex;
+  flex-direction: column;
+  margin-top: 20px;
+}
+.calendrier .tableau-child:nth-child(1) {
+  font-size: var(--taille-texte-secondaire);
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  align-items: center;
+  padding: 15px 10px;
+  background-color: #00000008;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+  color: #000000c8;
+}
+.calendrier .tableau-child {
+  font-size: var(--taille-texte-secondaire);
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  align-items: center;
+  padding: 12px 10px;
+  border-bottom: 2px solid #00000008;
+  font-weight: 500;
+}
+.calendrier .tableau-child p {
+  margin: 0px 6px;
+}
+.calendrier .voirFiche {
+  display: flex;
+  gap: 5px;
+  transition: all 0.3s ease;
+}
+.calendrier .voirFiche:hover img {
+  transform: scale(1.2);
+}
+.calendrier .visioImg {
+  height: 16px;
+  width: 16px;
+  margin-left: 20px;
+}
+.calendrier .formulaire {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  width: 100vh;
+  margin-top: -10px;
+}
+.calendrier .formulaire .grid-content {
+  display: grid;
+  grid-template-columns: repeat(2, 2fr);
+  gap: 20px;
+}
+.calendrier .errorTime {
+  width: fit-content;
+  font-size: var(--taille-texte-secondaire);
+  border: 1px solid #980000;
+  border-radius: 5px;
+  padding: 3px 9px;
+  background-color: #9a00004c;
+  margin: -10px 0px;
 }
