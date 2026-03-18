@@ -1,6 +1,9 @@
 <?php
     require_once "variable-connexion/config.php";
 
+    $erreurHeure = "none";
+
+    // Requete intervention de la semaine 
     $dateActuel = date('Y-m-d H:i:s', strtotime('monday this week'));
     $dateFin = date('Y-m-d H:i:s', strtotime('sunday this week 23:59:59'));
 
@@ -20,6 +23,71 @@
     $requete->execute();
     $inter = $requete->fetchAll(PDO::FETCH_ASSOC);
 
+    // Requete tous les modules
+    $requeteMod = $connexion->prepare("SELECT id, name FROM module");
+
+    $requeteMod->execute();
+    $allMod = $requeteMod->fetchAll(PDO::FETCH_ASSOC);
+
+    // Requete tous les type d'interventions
+    $requeteType = $connexion->prepare("SELECT id, name FROM intervention_type");
+
+    $requeteType->execute();
+    $allType = $requeteType->fetchAll(PDO::FETCH_ASSOC);
+
+    // Requete tous les instructor
+    $requeteInstru = $connexion->prepare("SELECT id, last_name, first_name FROM user WHERE role = 'instructor'");
+
+    $requeteInstru->execute();
+    $allInstru = $requeteInstru->fetchAll(PDO::FETCH_ASSOC);
+
+    // Envoie du form
+    if ($_SERVER["REQUEST_METHOD"] === "POST"){
+
+        $titre = $_POST["titre"];
+        $dateDebut = $_POST["dateDebut"];
+        $dateFin = $_POST["dateFin"];
+        $module = $_POST["module"];
+        $type = $_POST["typeInter"];
+        $intervenant = $_POST["intervenant"];
+        $remotely = isset($_POST["remotely"]) ? 1 : 0;
+
+        $debut = new DateTime($dateDebut);
+        $fin = new DateTime($dateFin);
+        $diff = $debut->diff($fin);
+        $diffHeures = $diff->h + ($diff->days * 24);
+
+        if ($diffHeures <= 4 && $diffHeures > 0){
+            
+            $requeteAddCourse = $connexion->prepare("
+                INSERT INTO course (title, start_date, end_date, remotely, intervention_type_id, module_id) 
+                VALUES (:titre, :dateDebut, :dateFin, :remotely, :type, :module)
+            ");
+            $requeteAddCourse->bindParam(":titre", $titre);
+            $requeteAddCourse->bindParam(":dateDebut", $dateDebut);
+            $requeteAddCourse->bindParam(":dateFin", $dateFin);
+            $requeteAddCourse->bindParam(":remotely", $remotely);
+            $requeteAddCourse->bindParam(":type", $type);
+            $requeteAddCourse->bindParam(":module", $module);
+            
+            $requeteAddCourse->execute();
+
+            $newCourseId = $connexion->lastInsertId();
+            foreach ($intervenant as $int){
+                $requeteAddCourseInstructor = $connexion->prepare("
+                    INSERT INTO course_instructor (course_id, instructor_id) 
+                    VALUES (:courseId, :instruId)
+                ");
+                $requeteAddCourseInstructor->bindParam(":courseId", $newCourseId);
+                $requeteAddCourseInstructor->bindParam(":instruId", $int);
+
+                $requeteAddCourseInstructor->execute();
+            }
+        }else{
+            $erreurHeure = "flex";
+        }
+    }
+
 ?>
 
 <!DOCTYPE html>
@@ -29,6 +97,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>calendrier</title>
     <link rel="stylesheet" href="styles.css">
+    <script src="script.js" defer></script>
+    <link href="https://cdn.jsdelivr.net/npm/tom-select/dist/css/tom-select.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/tom-select/dist/js/tom-select.complete.min.js"></script>
 </head>
 <body class="calendrier">
     <?php require "html-commun/aside.html"; ?>
@@ -114,5 +185,95 @@
           </div>
       </main>
     </div>
+    <section class="popUp">
+      <p class="close-btn-popUp">x</p>
+      <div class="popUp-main">
+        <div class="popUp-header">
+          <img src="assets/plusSymbole.png" alt="Ajouter" class="left">
+          <div class="right">
+            <h2>Ajouter une intervention</h2>
+            <p>Remplissez les informations ci-dessous</p>
+          </div>
+        </div>
+        <form action="" method="POST" class="formulaire">
+          <div class="input-box">
+            <label for="titre">Titre</label>
+            <input type="text" name="titre" placeholder="Saisissez un titre sur l'intervention" required>
+          </div>
+          <div class="grid-content">
+            <div class="input-box">
+                <label for="dateDebut">Date de début - champs obligatoire</label>
+                <input type="datetime-local" name="dateDebut" required>
+            </div>
+            <div class="input-box">
+                <label for="dateFin">Date de fin - champs obligatoire</label>
+                <input type="datetime-local" name="dateFin" required>
+            </div>
+            <div class="input-box">
+                <label for="module">Module - champs obligatoire</label>
+                <select name="module" required>
+                    <option value="">Sélectionez le module</option>
+                    <?php 
+                        foreach ($allMod as $m){
+                            ?>
+                            <option value="<?= htmlspecialchars($m["id"]) ?>"><?= $m["name"] ?></option>
+                            <?php
+                        }
+                    ?>
+                </select>
+            </div>
+            <div class="input-box">
+                <label for="typeInter">Type d'intervention - champs obligatoire</label>
+                <select name="typeInter" required>
+                    <option value="">Sélectionez le module</option>
+                    <?php 
+                        foreach ($allType as $t){
+                            ?>
+                            <option value="<?= htmlspecialchars($t["id"]) ?>"><?= $t["name"] ?></option>
+                            <?php
+                        }
+                    ?>
+                </select>
+            </div>
+          </div>
+          <div class="input-box select-form">
+              <label for="intervenant[]">Intervenants - champs obligatoire</label>
+              <select name="intervenant[]" id="intervenants" multiple required>
+                  <?php
+                      foreach($allInstru as $in){
+                          ?>
+                          <option value="<?= $in['id'] ?>"><?= htmlspecialchars($in['last_name']) ?> <?= htmlspecialchars($in['first_name']) ?></option>
+                          <?php
+                      }
+                  ?>
+              </select>
+          </div>
+          <div class="btn-switch">
+            <label class="toggleSwitch">
+                <input type="checkbox" name="remotely">
+                <span class="slider"></span>
+            </label>
+            <p>Interventions effectuée en visio</p>
+          </div>
+          <div class="errorTime" style="display: <?= $erreurHeure ?>;">La durée d'intervention doit être inférieur à 4h</div>
+          <div class="btn-form">
+            <p class="cancel-btn-popUp">Annuler</p>
+            <button type="submit" class="confirm-btn">Confirmer</button>
+          </div>
+        </form>
+      </div>
+    </section>
+    <div class="overlay"></div>
+    <script>
+        new TomSelect('#intervenants', {
+            plugins: ['remove_button'],
+        });
+    </script>
+    <script>
+        <?php if($erreurHeure === "flex"){ ?>
+            document.querySelector(".popUp").style.display = "flex";
+            document.querySelector(".overlay").style.display = "block";
+        <?php } ?>
+    </script>
 </body>
 </html>
