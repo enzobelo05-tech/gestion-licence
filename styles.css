@@ -513,7 +513,6 @@ header hr {
 .corpsEnseignant .input-box {
   display: flex;
   flex-direction: column;
-  width: 27%;
   gap: 5px;
 }
 .corpsEnseignant form button {
