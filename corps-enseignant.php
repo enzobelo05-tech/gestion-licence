@@ -66,7 +66,7 @@
     <script src="script.js" defer></script>
   </head>
   <body class="corpsEnseignant">
-    <?php require "html-commun/aside.html"; ?>
+    <?php require "html-commun/aside.php"; ?>
     <div class="right-page">
       <header>
         <div class="filAriane">

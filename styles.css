@@ -98,6 +98,11 @@ main {
   position: sticky;
   top: 0;
 }
+.aside-page nav {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
 .aside-page .logo {
   display: flex;
   align-items: center;
@@ -121,7 +126,7 @@ main {
   line-height: 1;
 }
 .aside-page .navigation {
-  height: fit-content;
+  flex: 1;
   width: 100%;
   display: flex;
   flex-direction: column;
@@ -171,6 +176,30 @@ main {
 .aside-page .parametrage-child:hover img,
 .aside-page .menu-child:hover img {
   filter: brightness(0) invert(1);
+}
+.aside-page .userConnexion {
+  display: flex;
+  justify-content: center;
+  width: 80%;
+  align-items: center;
+  margin-bottom: 20px;
+}
+.aside-page .userConnexion img {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+}
+.aside-page .userConnexion .userInfo {
+  display: flex;
+  flex-direction: column;
+}
+.aside-page .userConnexion .userInfo p:nth-child(1) {
+  font-size: var(--taille-texte-principal);
+  cursor: pointer;
+}
+.aside-page .userConnexion .userInfo p:nth-child(2) {
+  font-size: var(--taille-texte-secondaire);
+  color: #2732409d;
 }
 
 /*** Header ***/
