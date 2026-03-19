@@ -510,9 +510,10 @@ header hr {
   align-items: end;
   font-size: var(--taille-texte-principal);
 }
-.corpsEnseignant .input-box {
+.corpsEnseignant .form-parent .input-box {
   display: flex;
   flex-direction: column;
+  width: 27%;
   gap: 5px;
 }
 .corpsEnseignant form button {
