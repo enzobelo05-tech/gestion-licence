@@ -73,7 +73,7 @@
     <script src="https://cdn.jsdelivr.net/npm/tom-select/dist/js/tom-select.complete.min.js"></script>
 </head>
 <body class="infosGenerales">
-    <?php require "html-commun/aside.html"; ?>
+    <?php require "html-commun/aside.php"; ?>
     <div class="right-page">
       <header>
         <div class="filAriane">

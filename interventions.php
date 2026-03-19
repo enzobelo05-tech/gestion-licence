@@ -63,7 +63,7 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body class="interventions">
-    <?php require "html-commun/aside.html"; ?>
+    <?php require "html-commun/aside.php"; ?>
     <div class="right-page">
       <header>
         <div class="filAriane">
