@@ -1,7 +1,7 @@
 <?php
   require_once "variable-connexion/connexion.php";
 
-  $requete = $con->prepare("SELECT * FROM user WHERE id = 1");
+  $requete = $connexion->prepare("SELECT * FROM user WHERE id = 1");
 
   $requete->execute();
   $user = $requete->fetch(PDO::FETCH_ASSOC);

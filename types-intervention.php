@@ -1,23 +1,31 @@
-<?php 
-  require_once "variable-connexion/connexion.php";
+<?php
+require_once "variable-connexion/connexion.php";
 
-  $count = 0;
 
-  if($_SERVER['REQUEST_METHOD'] === 'POST'){
-    $count = 0;
+$count = 0;
+$typeIntervention = [];
 
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $nom = '%' . $_POST["nom"] . '%';
-    $prenom = '%' . $_POST["prenom"] . '%';
-    $email = '%' . $_POST["email"] . '%';
 
-    $requete = $connexion->prepare("SELECT id, last_name, first_name, email FROM user WHERE last_name LIKE :nom AND first_name LIKE :prenom AND email LIKE :email AND role = 'instructor'" );
+    $requete = $connexion->prepare(
+        "SELECT id, name, description, color 
+         FROM intervention_type 
+         WHERE name LIKE :nom"
+    );
     $requete->bindParam(":nom", $nom);
-    $requete->bindParam(":prenom", $prenom);
-    $requete->bindParam(":email", $email);
-
     $requete->execute();
     $typeIntervention = $requete->fetchAll(PDO::FETCH_ASSOC);
-  }
+
+} else {
+    $requete = $connexion->prepare(
+        "SELECT id, name, description, color FROM intervention_type"
+    );
+    $requete->execute();
+    $typeIntervention = $requete->fetchAll(PDO::FETCH_ASSOC);
+}
+
+$count = count($typeIntervention); 
 
 ?>
 
@@ -54,28 +62,24 @@
                             <input type="text" name="nom" placeholder="Saisissez le nom" />
                         </div>
 
-                        <button type="submit">filtrer</button>
+                        <button type="submit">Filtrer</button>
                     </form>
                     <hr />
                 </section>
                 <section class="enseignant-found">
-                    <?php if (isset($enseign)){ foreach($typeIntervention  as $ens){ $count += 1; } } ?>
-                    <h3><?= $count ?> types</h3>
+                    <h3><?= $count ?> type(s)</h3>
                     <div class="tableau">
                         <div class="tableau-child">
                             <p>Nom</p>
-                            <p>Descriptif</p>
+                            <p>description</p>
                             <p>Couleur</p>
                         </div>
-                        <?php if(isset($typeIntervention)){ foreach($typeIntervention as $e){ ?>
+                        <?php foreach($typeIntervention as $e){?>
                         <div class="tableau-child">
                             <p><?= htmlspecialchars($e["name"]) ?></p>
-                            <p><?= htmlspecialchars($e["descriptif"]) ?></p>
-                            <p><?= htmlspecialchars($e["color"]) ?></p>
+                            <p><?= htmlspecialchars($e["description"]) ?></p>
+                            <p style="color: <?= htmlspecialchars($e["color"]) ?>;"><?= htmlspecialchars($e["color"]) ?></p>
 
-                            <p><?= $heure ?>h</p>
-
-                            <?php } ?>
                             <div class="voirFiche">
                                 <img src="assets/SeeMore.png" alt="Voir plus" />
                                 <a href="infos-generales.php?id=<?= htmlspecialchars($e['id']) ?>"
@@ -83,7 +87,7 @@
                                 >
                             </div>
                         </div>
-                        <?php }  ?>
+                   <?php } ?>
                     </div>
                 </section>
             </main>

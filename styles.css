@@ -935,7 +935,7 @@ header hr {
 }
 .type-intervention form {
     display: flex;
-    justify-content: space-between;
+    gap: 20px;
     align-items: end;
     font-size: var(--taille-texte-principal);
 }
@@ -992,7 +992,8 @@ header hr {
 .type-intervention .tableau-child:nth-child(1) {
     font-size: var(--taille-texte-secondaire);
     display: grid;
-    grid-template-columns: repeat(5, 1fr);
+
+    grid-template-columns: repeat(4, 1fr);
     align-items: center;
     padding: 15px 10px;
     background-color: #00000008;
@@ -1003,7 +1004,7 @@ header hr {
 .type-intervention .tableau-child {
     font-size: var(--taille-texte-secondaire);
     display: grid;
-    grid-template-columns: repeat(5, 1fr);
+    grid-template-columns: repeat(4, 1fr);
     align-items: center;
     padding: 12px 10px;
     border-bottom: 2px solid #00000008;
