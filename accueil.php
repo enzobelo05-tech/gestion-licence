@@ -8,7 +8,7 @@ if(isset($_POST['mail']) && isset($_POST['password'])) {
     $password = $_POST['password'];
 
 
-    $requette = $con->prepare("SELECT email, password FROM user WHERE email = :email");
+    $requette = $connexion->prepare("SELECT email, password FROM user WHERE email = :email");
     
 
     $requette->bindParam(':email', $mail);
