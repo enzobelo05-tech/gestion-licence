@@ -411,6 +411,30 @@ header hr {
   gap: 20px;
 }
 
+/***** pagination *****/
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 25px;
+  gap: 5px;
+}
+.pagination-child {
+  padding: 6px 14px;
+  font-size: 20px;
+  border: 1px solid #dadada;
+  border-radius: 5px;
+  cursor: pointer;
+}
+.pagination-child:hover {
+  background-color: var(--couleur-principal);
+  color: white;
+}
+.pagination-select {
+  background-color: var(--couleur-principal);
+  color: white;
+}
+
 /*******************************************
                 Page Connexion
 *******************************************/

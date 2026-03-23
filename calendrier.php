@@ -3,9 +3,38 @@
 
     $erreurHeure = "none";
 
-    // Requete intervention de la semaine 
     $dateActuel = date('Y-m-d H:i:s', strtotime('monday this week'));
     $dateFin = date('Y-m-d H:i:s', strtotime('sunday this week 23:59:59'));
+
+    $requetePage = $connexion->prepare("
+    SELECT COUNT(*) AS total
+    FROM (
+    SELECT course.id AS course_id, start_date, end_date, title, module.name AS module_name, intervention_type.name AS type_name, remotely
+    FROM course 
+    JOIN module ON module.id = course.module_id 
+    JOIN intervention_type ON intervention_type.id = course.intervention_type_id
+    JOIN course_instructor ON course_instructor.course_id = course.id
+    WHERE start_date >= :dateActuel
+    AND end_date <= :dateFin
+    GROUP BY course.id
+    ORDER BY start_date DESC
+    ) AS sub
+    ");
+    $requetePage->bindParam(":dateActuel", $dateActuel);
+    $requetePage->bindParam(":dateFin", $dateFin);
+
+    $requetePage->execute();
+    $nbPage = ceil(($requetePage->fetch(PDO::FETCH_ASSOC)["total"]) / 10);
+    
+
+    if(isset($_GET["page"])){
+        $page = (int)$_GET["page"];
+    }else{
+        $page = 1;
+    }
+    $offSet = $page * 10 - 10;
+
+    // Requete intervention de la semaine 
 
     $requete = $connexion->prepare("
     SELECT course.id AS course_id, start_date, end_date, title, module.name AS module_name, intervention_type.name AS type_name, remotely
@@ -17,12 +46,16 @@
     AND end_date <= :dateFin
     GROUP BY course.id
     ORDER BY start_date DESC
+    LIMIT 10 
+    OFFSET :offset
     ");
     $requete->bindParam(":dateActuel", $dateActuel);
     $requete->bindParam(":dateFin", $dateFin);
+    $requete->bindValue(":offset", $offSet, PDO::PARAM_INT);
 
     $requete->execute();
     $inter = $requete->fetchAll(PDO::FETCH_ASSOC);
+
 
     // Requete tous les modules
     $requeteMod = $connexion->prepare("SELECT id, name FROM module");
@@ -111,6 +144,8 @@
                     $requeteAddModule->execute();
                 }
             }
+            header("Location: calendrier.php?page=" . $page);
+            exit();
         }else{
             $erreurHeure = "flex";
         }
@@ -205,6 +240,15 @@
                         <a href="">Accéder à la fiche</a>
                     </div>
                     </div>
+                    <?php
+                }
+            ?>
+          </div>
+          <div class="pagination">
+            <?php  
+                for ($i = 1; $i <= $nbPage; $i++){
+                    ?>
+                    <a href="calendrier.php?page=<?= $i ?>" class="pagination-child <?= $i === $page ? 'pagination-select' : '' ?>"><?= $i ?></a>
                     <?php
                 }
             ?>
