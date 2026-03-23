@@ -51,7 +51,7 @@ $count = count($typeIntervention);
             </header>
             <main>
                 <div class="top-main">
-                    <h2>Types d'ntervention</h2>
+                    <h2>Types d'intervention</h2>
                     <button type="submit" value="add">Ajouter un type</button>
                 </div>
                 <section class="form-parent">
