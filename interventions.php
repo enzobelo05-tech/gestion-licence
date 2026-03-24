@@ -26,33 +26,61 @@
     $instructorId = $instructor["id"];
 
     //* envoie du form
-    if ($_SERVER["REQUEST_METHOD"] === "POST"){
+    $moduleID = $_GET["module"] ?? "";
+    $dateDebut = $_GET["dateDebut"] ?? "";
+    $dateFin = $_GET["dateFin"] ?? "";
 
-        $moduleID = $_POST["module"];
-        $dateDebut = $_POST["dateDebut"];
-        $dateFin = $_POST["dateFin"];
+    $requetePage = "
+        SELECT COUNT(*) AS total 
+        FROM course
+        JOIN course_instructor ON course_instructor.course_id = course.id
+        WHERE course_instructor.instructor_id = :instructorId
+    ";
 
-        $requete = 
-            "SELECT course.start_date, course.end_date, course.remotely, module.name AS module_name, intervention_type.name AS type_name
-            FROM course
-            JOIN module ON module.id = course.module_id
-            JOIN intervention_type ON intervention_type.id = course.intervention_type_id
-            JOIN course_instructor ON course_instructor.course_id = course.id
-            WHERE course_instructor.instructor_id = :instructorId";
+    if (!empty($dateDebut)) $requetePage .= " AND course.start_date >= :debut";
+    if (!empty($dateFin)) $requetePage .= " AND course.end_date <= :fin";
+    if (!empty($moduleID)) $requetePage .= " AND course.module_id = :moduleId";
 
-        (!empty($_POST["dateDebut"])) ? $requete = $requete . " AND course.start_date >= :debut" : "";
-        (!empty($_POST["dateFin"])) ? $requete = $requete . " AND course.end_date <= :fin" : "";
-        (!empty($_POST["module"])) ? $requete = $requete . " AND course.module_id = :moduleId" : "";
+    $requetePageFinal = $connexion->prepare($requetePage);
+    $requetePageFinal->bindValue(":instructorId", $instructorId, PDO::PARAM_INT);
+    if (!empty($dateDebut)) $requetePageFinal->bindValue(":debut", $dateDebut);
+    if (!empty($dateFin)) $requetePageFinal->bindValue(":fin", $dateFin);
+    if (!empty($moduleID)) $requetePageFinal->bindValue(":moduleId", $moduleID, PDO::PARAM_INT);
 
-        $requeteFinal = $connexion->prepare($requete);
-        $requeteFinal->bindParam(":instructorId", $instructorId);
-        (!empty($_POST["dateDebut"])) ? $requeteFinal->bindValue(":debut", $dateDebut) : "";
-        (!empty($_POST["dateFin"])) ? $requeteFinal->bindValue(":fin", $dateFin) : "";
-        (!empty($_POST["module"])) ? $requeteFinal->bindValue(":moduleId", $moduleID) : "";
+    $requetePageFinal->execute();
+    $total = $requetePageFinal->fetch(PDO::FETCH_ASSOC)["total"];
+    $nbPage = ceil($total / 10);
 
-        $requeteFinal->execute();
-        $interventions = $requeteFinal->fetchAll(PDO::FETCH_ASSOC);
-    }
+    $page = isset($_GET["page"]) ? (int)$_GET["page"] : 1;
+    $page = max(1, $page);
+
+    $offSet = $page * 10 - 10;
+
+    $requete = 
+        "SELECT course.start_date, course.end_date, course.remotely, module.name AS module_name, intervention_type.name AS type_name
+        FROM course
+        JOIN module ON module.id = course.module_id
+        JOIN intervention_type ON intervention_type.id = course.intervention_type_id
+        JOIN course_instructor ON course_instructor.course_id = course.id
+        WHERE course_instructor.instructor_id = :instructorId";
+
+    if (!empty($dateDebut)) $requete .= " AND course.start_date >= :debut";
+    if (!empty($dateFin)) $requete .= " AND course.end_date <= :fin";
+    if (!empty($moduleID)) $requete .= " AND course.module_id = :moduleId";
+
+    $requete .= " LIMIT 10 OFFSET :offset";
+
+    $requeteFinal = $connexion->prepare($requete);
+    $requeteFinal->bindValue(":instructorId", $instructorId, PDO::PARAM_INT);
+    if (!empty($dateDebut)) $requeteFinal->bindValue(":debut", $dateDebut);
+    if (!empty($dateFin)) $requeteFinal->bindValue(":fin", $dateFin);
+    if (!empty($moduleID)) $requeteFinal->bindValue(":moduleId", $moduleID, PDO::PARAM_INT);
+    $requeteFinal->bindValue(":offset", $offSet, PDO::PARAM_INT);
+
+    $requeteFinal->execute();
+    $interventions = $requeteFinal->fetchAll(PDO::FETCH_ASSOC);
+
+    $count = $total;
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -83,7 +111,6 @@
             <p class="sub-title">Modules enseignés</p>
             <?php
                 if($enseignantInfo){
-                    $heure = 0;
                     foreach($enseignantInfo as $en){
                     ?>
                         <p><?= htmlspecialchars($en["name"]) ?>:  <?= htmlspecialchars($en["hours_count"]) ?>h00</p>
@@ -99,14 +126,15 @@
                 <a href="">Interventions</a>
             </div>
             <p class="form-title">Filtrer les interventions</p>
-            <form action="" method="POST">
+            <form action="" method="GET">
+                <input type="hidden" name="id" value="<?= htmlspecialchars($id) ?>">
                 <div class="input-box">
                     <label for="dateDebut">Date de début</label>
-                    <input type="datetime-local" name="dateDebut">
+                    <input type="datetime-local" name="dateDebut" value="<?= htmlspecialchars($dateDebut) ?>">
                 </div>
                 <div class="input-box">
                     <label for="dateFin">Date de fin</label>
-                    <input type="datetime-local" name="dateFin">
+                    <input type="datetime-local" name="dateFin" value="<?= htmlspecialchars($dateFin) ?>">
                 </div>
                 <div class="input-box">
                     <label for="module">Module</label>
@@ -115,7 +143,9 @@
                         <?php 
                             foreach ($enseignantInfo as $mod){
                                 ?>
-                                <option value="<?= htmlspecialchars($mod["id"]) ?>"><?= htmlspecialchars($mod["name"]) ?></option>
+                                <option value="<?= htmlspecialchars($mod["id"]) ?>" <?= $moduleID == $mod["id"] ? 'selected' : '' ?>>
+                                    <?= htmlspecialchars($mod["name"]) ?>
+                                </option>
                                 <?php
                             }
                         ?>
@@ -124,13 +154,6 @@
                 <button type="submit" class="filter-btn">Filtrer</button>
             </form>
             <hr>
-            <?php
-            if (isset($interventions)){
-              foreach($interventions as $int){
-                $count += 1;
-              } 
-            }
-          ?>
           <h3><?= $count ?> enseignant trouvé(s)</h3>
           <div class="tableau">
             <div class="tableau-child">
@@ -142,13 +165,12 @@
             </div>
             <?php 
               if(isset($interventions)){
-
                 foreach($interventions as $inter){
-                  $dateDebut = new DateTime($inter["start_date"]);
-                  $dateFin = new DateTime($inter["end_date"]);
-                  $dateFormatee = $dateDebut->format("d/m/Y");
-                  $heureDebut = $dateDebut->format("h\hi");
-                  $heureFin = $dateFin->format("h\hi");
+                  $dateDebutObj = new DateTime($inter["start_date"]);
+                  $dateFinObj = new DateTime($inter["end_date"]);
+                  $dateFormatee = $dateDebutObj->format("d/m/Y");
+                  $heureDebut = $dateDebutObj->format("H\hi");
+                  $heureFin = $dateFinObj->format("H\hi");
 
                   $initial = $enseignant["first_name"]; 
                   ?>
@@ -177,6 +199,20 @@
             ?>
           </div>
         </section>
+
+        <div class="pagination">
+        <?php
+        for ($i = 1; $i <= $nbPage; $i++){
+        ?>
+        <a href="?id=<?= $id ?>&page=<?= $i ?>&dateDebut=<?= urlencode($dateDebut) ?>&dateFin=<?= urlencode($dateFin) ?>&module=<?= urlencode($moduleID) ?>"
+           class="pagination-child <?= $i === $page ? 'pagination-select' : '' ?>">
+           <?= $i ?>
+        </a>
+        <?php
+        }
+        ?>
+        </div>
+
       </main>
     </div>
 </body>
