@@ -924,25 +924,25 @@ header hr {
 .type-intervention .top-main button:hover {
     background-color: var(--couleur-principal-hover);
 }
-.type-intervention .form-parent {
+.type-intervention .right-page .form-parent {
     margin-top: 20px;
     display: flex;
     flex-direction: column;
     gap: 5px;
 }
-.type-intervention form {
+.type-intervention .right-page form {
     display: flex;
     gap: 10px;
     align-items: end;
     font-size: var(--taille-texte-principal);
 }
-.type-intervention .input-box {
+.type-intervention .right-page .input-box {
     display: flex;
     flex-direction: column;
     width: 27%;
     gap: 5px;
 }
-.type-intervention form button {
+.type-intervention .right-page form button {
     width: 14%;
     background-color: var(--couleur-secondaire);
     color: black;
@@ -954,42 +954,41 @@ header hr {
     transition: all 0.3s ease;
     height: fit-content;
 }
-.type-intervention form button:hover {
+.type-intervention .right-page form button:hover {
     background-color: var(--couleur-secondaire-hover);
 }
-.type-intervention .filter-txt {
+.type-intervention .right-page .filter-txt {
     color: var(--couleur-secondaire);
     font-size: 20px;
     font-weight: 600;
 }
-.type-intervention .input-box input {
+.type-intervention .right-page .input-box input {
     border-radius: 5px;
     padding: 9px 10px;
     border: 1px solid #23345645;
     color: black;
 }
-.type-intervention .form-parent hr {
+.type-intervention .right-page .form-parent hr {
     border: 1px solid var(--couleur-secondaire);
     margin-top: 10px;
 }
 
-.type-intervention .enseignant-found {
+.type-intervention .right-page .enseignant-found {
     display: flex;
     flex-direction: column;
     margin-top: 20px;
 }
-.type-intervention .enseignant-found h3 {
+.type-intervention .right-page .enseignant-found h3 {
     font-weight: 600;
 }
-.type-intervention .tableau {
+.type-intervention .right-page .tableau {
     display: flex;
     flex-direction: column;
     margin-top: 20px;
 }
-.type-intervention .tableau-child:nth-child(1) {
+.type-intervention .right-page .tableau-child:nth-child(1) {
     font-size: var(--taille-texte-secondaire);
     display: grid;
-
     grid-template-columns: repeat(4, 1fr);
     align-items: center;
     padding: 15px 10px;
@@ -998,7 +997,8 @@ header hr {
     border-top-right-radius: 10px;
     color: #000000c8;
 }
-.type-intervention .tableau-child {
+
+.type-intervention .right-page .tableau-child {
     font-size: var(--taille-texte-secondaire);
     display: grid;
     grid-template-columns: repeat(4, 1fr);
@@ -1007,14 +1007,161 @@ header hr {
     border-bottom: 2px solid #00000008;
     font-weight: 500;
 }
-.type-intervention .tableau-child p {
+.type-intervention .right-page .tableau-child p {
     margin: 0px 6px;
 }
-.type-intervention .voirFiche {
+.type-intervention .right-page .voirFiche {
     display: flex;
     gap: 5px;
     transition: all 0.3s ease;
 }
-.type-intervention .voirFiche:hover img {
+.type-intervention .right-page .voirFiche:hover img {
     transform: scale(1.2);
+}
+
+.type-intervention .right-page .top-main a {
+    background-color: var(--couleur-principal);
+    color: white;
+    padding: 8px 20px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-size: var(--taille-texte-principal);
+    transition: all 0.3s ease;
+}
+.type-intervention .right-page .top-main a:hover {
+    background-color: var(--couleur-principal-hover);
+}
+.type-intervention .right-page .formulaire {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    width: 100vh;
+    margin-top: -10px;
+}
+.type-intervention .right-page .formulaire .grid-content {
+    display: grid;
+    grid-template-columns: repeat(2, 2fr);
+    gap: 20px;
+}
+
+/*******************************************
+        type intervention - cours
+*******************************************/
+.ajout-type-intervention .form-parent form {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+    margin-top: 15px;
+    max-width: 70%;
+}
+
+.ajout-type-intervention .form-parent .input-box {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.ajout-type-intervention .form-parent .input-box:last-of-type {
+    grid-column: 1 / -1;
+}
+
+.ajout-type-intervention .form-parent .input-box input {
+    border-radius: 5px;
+    padding: 9px 10px;
+    border: 1px solid #23345645;
+    color: black;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.ajout-type-intervention .form-parent .input-box textarea {
+    border-radius: 5px;
+    padding: 9px 10px;
+    border: 1px solid #23345645;
+    color: black;
+    width: 100%;
+    height: 100px;
+    box-sizing: border-box;
+}
+
+.ajout-type-intervention .form-parent .button {
+    grid-column: 1 / -1;
+    display: flex;
+    gap: 10px;
+    margin-top: 5px;
+}
+
+.ajout-type-intervention .form-parent .button a {
+    padding: 10px 0;
+    width: 100%;
+    text-align: center;
+    border-radius: 8px;
+    font-size: var(--taille-texte-principal);
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.ajout-type-intervention .form-parent .input-box:nth-child(3) {
+    grid-column: 1 / -1;
+}
+
+.ajout-type-intervention .form-parent .button a:nth-child(1) {
+    background-color: #e0e0e0;
+    color: black;
+}
+.ajout-type-intervention .form-parent .button a:nth-child(1):hover {
+    background-color: #cacaca;
+}
+.ajout-type-intervention .form-parent .button a:nth-child(2) {
+    color: white;
+    background-color: #ff0800;
+}
+.ajout-type-intervention .form-parent .button a:nth-child(2):hover {
+    background-color: #d61f19;
+}
+
+.ajout-type-intervention .form-parent .button a:nth-child(3) {
+    background-color: var(--couleur-principal);
+    color: white;
+}
+
+.ajout-type-intervention .button a:nth-child(1) {
+    background-color: #e0e0e0;
+    color: black;
+}
+
+.ajout-type-intervention .button a:nth-child(1):hover {
+    background-color: #cacaca;
+}
+
+.ajout-type-intervention .button a:nth-child(2) {
+    color: white;
+    background-color: #ff0800;
+}
+
+.ajout-type-intervention .button a:nth-child(2):hover {
+    background-color: #d61f19;
+}
+
+.ajout-type-intervention .popUp .container {
+    margin-bottom: 30px;
+}
+
+.ajout-type-intervention .button {
+    width: 100%;
+    display: flex;
+    gap: 15px;
+}
+
+.ajout-type-intervention .button a {
+    display: block;
+    flex: 1;
+    padding: 10px 0;
+    text-align: center;
+    border-radius: 8px;
+    font-size: var(--taille-texte-principal);
+    font-weight: 500;
+    transition: all 0.3s ease;
 }

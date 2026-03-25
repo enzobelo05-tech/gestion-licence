@@ -37,6 +37,7 @@ $count = count($typeIntervention);
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>Interventions</title>
         <link rel="stylesheet" href="styles.css" />
+        <script src="script.js" defer></script>
     </head>
     <body class="type-intervention">
         <?php require "html-commun/aside-enzo.php" ?>
@@ -52,7 +53,7 @@ $count = count($typeIntervention);
             <main>
                 <div class="top-main">
                     <h2>Types d'intervention</h2>
-                    <button type="submit" value="add">Ajouter un type</button>
+                    <a href="javascript:void(0)" class="addInter">Ajouter un type</a>
                 </div>
                 <section class="form-parent">
                     <p class="filter-txt">Filtre</p>
@@ -82,7 +83,7 @@ $count = count($typeIntervention);
 
                             <div class="voirFiche">
                                 <img src="assets/SeeMore.png" alt="Voir plus" />
-                                <a href="infos-generales.php?id=<?= htmlspecialchars($e['id']) ?>"
+                                <a href="voir-fiche-types-intervention.php?id=<?= htmlspecialchars($e['id']) ?>"
                                     >Accéder à la fiche</a
                                 >
                             </div>
@@ -92,5 +93,44 @@ $count = count($typeIntervention);
                 </section>
             </main>
         </div>
+        <section class="popUp">
+      <p class="close-btn-popUp">x</p>
+      <div class="popUp-main">
+        <div class="popUp-header">
+          <img src="assets/plusSymbole.png" alt="Ajouter" class="left">
+          <div class="right">
+            <h2>Ajouter une intervention</h2>
+            <p>Remplissez les informations ci-dessous</p>
+          </div>
+        </div>
+        <form action="" method="POST" class="formulaire">
+          <div class="input-box">
+            <label for="titre">Nom - Champ obligatoire</label>
+            <input type="text" name="titre" placeholder="Cours" required>
+          </div>
+          <br>
+          <div class="grid-content">
+          </div>
+          <div class="input-box select-form">
+              <label for="intervenant[]">Intervenants - champs obligatoire</label>
+              <select name="intervenant[]" id="intervenants" multiple required>
+                  <?php
+                      foreach($allInstru as $in){
+                          ?>
+                          <option value="<?= $in['id'] ?>"><?= htmlspecialchars($in['last_name']) ?> <?= htmlspecialchars($in['first_name']) ?></option>
+                          <?php
+                      }
+                  ?>
+              </select>
+          </div>
+          <br>
+          <div class="btn-form">
+            <p class="cancel-btn-popUp">Annuler</p>
+            <button type="submit" class="confirm-btn">Confirmer</button>
+          </div>
+        </form>
+      </div>
+    </section>
+    <div class="overlay"></div>
     </body>
 </html>
