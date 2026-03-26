@@ -411,30 +411,6 @@ header hr {
     gap: 20px;
 }
 
-/***** pagination *****/
-.pagination {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-top: 25px;
-  gap: 5px;
-}
-.pagination-child {
-  padding: 6px 14px;
-  font-size: 20px;
-  border: 1px solid #dadada;
-  border-radius: 5px;
-  cursor: pointer;
-}
-.pagination-child:hover {
-  background-color: var(--couleur-principal);
-  color: white;
-}
-.pagination-select {
-  background-color: var(--couleur-principal);
-  color: white;
-}
-
 /*******************************************
                 Page Connexion
 *******************************************/
@@ -1044,4 +1020,191 @@ header hr {
 }
 .type-intervention .voirFiche:hover img {
     transform: scale(1.2);
+}
+/*******************************************
+        PAGE : Liste des Interventions
+*******************************************/
+
+/* Menu actif dans la sidebar */
+.listeInterventions .aside-page .menu-child:nth-child(2) {
+    background-color: var(--couleur-principal);
+    color: white;
+}
+.listeInterventions .aside-page .menu-child:nth-child(2) img {
+    filter: brightness(0) invert(1);
+}
+
+/* Header avec titre et bouton ajouter */
+.listeInterventions .top-main {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: var(--couleur-principal-hover);
+    margin-bottom: 24px;
+}
+
+.listeInterventions .top-main h1 {
+    font-weight: 600;
+    margin: 0;
+}
+
+/* Bouton "Ajouter une nouvelle intervention" */
+.listeInterventions .bouton-ajouter {
+    background-color: var(--couleur-principal);
+    color: white;
+    padding: 8px 20px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-size: var(--taille-texte-principal);
+    transition: all 0.3s ease;
+}
+.listeInterventions .bouton-ajouter:hover {
+    background-color: var(--couleur-principal-hover);
+}
+
+.listeInterventions .bouton-ajouter img {
+    width: 20px;
+    height: 20px;
+}
+
+/* Section Filtres */
+.listeInterventions .form-parent {
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.listeInterventions .filter-txt {
+    color: var(--couleur-secondaire);
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+
+/* Formulaire de filtres - ALIGNEMENT HORIZONTAL */
+.listeInterventions form {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 20px;
+    font-size: var(--taille-texte-principal);
+}
+
+.listeInterventions form .input-box {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    gap: 5px;
+}
+
+.listeInterventions form input,
+.listeInterventions form select {
+    border-radius: 5px;
+    padding: 9px 10px;
+    border: 1px solid #23345645;
+    color: black;
+    background-color: white;
+    width: 100%;
+}
+
+/* Bouton Filtrer - STYLE JAUNE */
+.listeInterventions .bouton-filtrer {
+    background-color: var(--couleur-secondaire);
+    color: black;
+    padding: 9px 20px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-size: var(--taille-texte-principal);
+    transition: all 0.3s ease;
+    height: fit-content;
+    font-weight: 500;
+}
+
+.listeInterventions .bouton-filtrer:hover {
+    background-color: var(--couleur-secondaire-hover);
+}
+
+/* Ligne de séparation */
+.listeInterventions .form-parent hr {
+    border: 1px solid var(--couleur-secondaire);
+    margin-top: 15px;
+    width: 100%;
+}
+
+/* Compteur de résultats */
+.listeInterventions .interventions-found {
+    margin: 20px 0 10px 0;
+}
+
+.listeInterventions .interventions-found h3 {
+    font-weight: 600;
+    font-size: 18px;
+}
+
+/* Tableau - 6 colonnes : Date | Module | Type | Intervenants | Visio | Action */
+.listeInterventions .tableau {
+    display: flex;
+    flex-direction: column;
+    margin-top: 10px;
+}
+
+.listeInterventions .tableau-child {
+    display: grid;
+    grid-template-columns: 2fr 2fr 1fr 2fr 0.5fr 1.5fr; /* 6 colonnes */
+    align-items: center;
+    padding: 12px 10px;
+    border-bottom: 2px solid #00000008;
+    font-size: var(--taille-texte-principal);
+    font-weight: 500;
+    gap: 10px;
+}
+
+/* En-tête du tableau */
+.listeInterventions .tableau-child:nth-child(1) {
+    font-size: var(--taille-texte-secondaire);
+    background-color: #00000008;
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    color: #000000c8;
+    font-weight: 600;
+    padding: 15px 10px;
+}
+
+/* Badge Type */
+.listeInterventions .badge-type {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: var(--taille-texte-secondaire);
+    font-weight: 500;
+}
+
+/* Image visio */
+.listeInterventions .img-visio {
+    height: 16px;
+    width: 16px;
+    margin-left: 10px;
+}
+
+/* Lien voir fiche */
+.listeInterventions .voirFiche {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    color: black;
+    text-decoration: none;
+    font-size: var(--taille-texte-secondaire);
+    transition: all 0.3s ease;
+}
+
+.listeInterventions .voirFiche:hover img {
+    transform: scale(1.2);
+}
+
+.listeInterventions .voirFiche img {
+    width: 16px;
+    height: 16px;
+    transition: transform 0.3s ease;
 }
