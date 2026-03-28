@@ -24,7 +24,7 @@
             <img src="assets/Calendrier.svg" alt="Calendrier" />
             <p>Calendrier</p>
           </a>
-          <a href="" class="menu-child">
+          <a href="interventions.php" class="menu-child">
             <img src="assets/Intervention.svg" alt="Interventions" />
             <p>Interventions</p>
           </a>
@@ -37,7 +37,7 @@
       <div class="parametrage">
         <p class="nav-title">PARAMETRAGE</p>
         <div class="parametrage-nav">
-          <a href="" class="parametrage-child">
+          <a href="modul.php" class="parametrage-child">
             <img src="assets/Module.svg" alt="Modules" />
             <p>Modules</p>
           </a>
