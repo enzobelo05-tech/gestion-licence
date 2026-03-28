@@ -41,7 +41,7 @@
             <img src="assets/Module.svg" alt="Modules" />
             <p>Modules</p>
           </a>
-          <a href="" class="parametrage-child">
+          <a href="types-intervention.php" class="parametrage-child">
             <img src="assets/Intervention.svg" alt="Types Interventions" />
             <p>Types d'intervention</p>
           </a>
@@ -51,7 +51,7 @@
     <div class="userConnexion">
       <img src="assets/pdpUser-removebg-preview.png" alt="user">
       <div class="userInfo">
-        <p><?= htmlspecialchars($user["first_name"]) ?> <?= htmlspecialchars($user["last_name"]) ?>⏷</p>
+        <p><?= htmlspecialchars($user["first_name"]) ?> <?= htmlspecialchars($user["last_name"]) ?> ⏷</p>
         <p><?= htmlspecialchars($user["role"]) ?></p>
       </div>
     </div>
