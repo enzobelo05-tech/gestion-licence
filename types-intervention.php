@@ -27,6 +27,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 $count = count($typeIntervention); 
 
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'ajouter') {
+    $nom         = $_POST['nom'];
+    $description = $_POST['description'];
+    $couleur     = $_POST['couleur'];
+}
 ?>
 
 
@@ -109,20 +114,17 @@ $count = count($typeIntervention);
             <input type="text" name="titre" placeholder="Cours" required>
           </div>
           <br>
-          <div class="grid-content">
+          
+            <div class="input-box">
+            <label for="titre">Description - Champ obligatoire</label>
+            <input type="text" name="titre" placeholder="Cours dispensé par..." required>
           </div>
-          <div class="input-box select-form">
-              <label for="intervenant[]">Intervenants - champs obligatoire</label>
-              <select name="intervenant[]" id="intervenants" multiple required>
-                  <?php
-                      foreach($allInstru as $in){
-                          ?>
-                          <option value="<?= $in['id'] ?>"><?= htmlspecialchars($in['last_name']) ?> <?= htmlspecialchars($in['first_name']) ?></option>
-                          <?php
-                      }
-                  ?>
-              </select>
+          <br>
+          <div class="input-box">
+            <label for="titre">Code couleur (hexadécimal) - champ obligatoire</label>
+            <input type="text" name="titre" placeholder="#38480" required>
           </div>
+        
           <br>
           <div class="btn-form">
             <p class="cancel-btn-popUp">Annuler</p>
