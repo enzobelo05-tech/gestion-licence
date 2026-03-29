@@ -15,7 +15,7 @@
         $requete-> bindParam(':description', $description);
         $requete-> bindParam(':color', $color);
         $requete->execute();
-        header("Location: " . $_SERVER['PHP_SELF']);   // empeche de add la sauvegarde popup
+        header("Location: " . $_SERVER['PHP_SELF']);   // évite de revalider le form en cas de recharge la page.
         exit;
     }
 
@@ -30,7 +30,7 @@
 
     //filtre
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['nom'])) {
-        $nom = $_POST["nom"] . '%';
+        $nom = $_POST["nom"] . '%'; // % like 
 
         $requete = $connexion->prepare(
             "SELECT id, name, description, color 
@@ -54,7 +54,6 @@
     }
 
     $count = count($typeIntervention);
-
 
     $requetePage = $connexion->prepare("SELECT COUNT(*) AS total FROM intervention_type");
     $requetePage->execute();
