@@ -1,46 +1,65 @@
 <?php
-require_once "variable-connexion/connexion.php";
+    require_once "variable-connexion/connexion.php";
 
-$count = 0;
-$typeIntervention = [];
+    $count = 0;
+    $typeIntervention = [];
 
-// ajout popup
-if($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action']) && $_POST['action'] === 'ajouter') {
-    $nom = trim($_POST['nom_type']);
-    $description = trim($_POST['description']); // TRIM enleve les espaces inutile
-    $color = trim($_POST['color']);
+    // ajout popup
+    if($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action']) && $_POST['action'] === 'ajouter') {
+        $nom = trim($_POST['nom_type']);
+        $description = trim($_POST['description']); // TRIM enleve les espaces inutile
+        $color = trim($_POST['color']);
 
-    $requete = $connexion->prepare("INSERT INTO intervention_type (name, description, color) VALUES (:nom, :description, :color)");
-    $requete-> bindParam(':nom', $nom);
-    $requete-> bindParam(':description', $description);
-    $requete-> bindParam(':color', $color);
-    $requete->execute();
-    header("Location: " . $_SERVER['PHP_SELF']);   // empeche de add la sauvegarde popup
-    exit;
-}
+        $requete = $connexion->prepare("INSERT INTO intervention_type (name, description, color) VALUES (:nom, :description, :color)");
+        $requete-> bindParam(':nom', $nom);
+        $requete-> bindParam(':description', $description);
+        $requete-> bindParam(':color', $color);
+        $requete->execute();
+        header("Location: " . $_SERVER['PHP_SELF']);   // empeche de add la sauvegarde popup
+        exit;
+    }
 
-//filtre
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['nom'])) {
-    $nom = $_POST["nom"] . '%';
 
-    $requete = $connexion->prepare(
-        "SELECT id, name, description, color 
-         FROM intervention_type 
-         WHERE name LIKE :nom"
-    );
-    $requete->bindParam(":nom", $nom);
-    $requete->execute();
-    $typeIntervention = $requete->fetchAll(PDO::FETCH_ASSOC);
+    //pagination
+    if(isset($_GET["page"])){
+        $page = (int)$_GET["page"];
+    }else{
+        $page = 1;
+    }
+    $offSet = $page * 10 - 10;
 
-} else {
-    $requete = $connexion->prepare(
-        "SELECT id, name, description, color FROM intervention_type"
-    );
-    $requete->execute();
-    $typeIntervention = $requete->fetchAll(PDO::FETCH_ASSOC);
-}
+    //filtre
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['nom'])) {
+        $nom = $_POST["nom"] . '%';
 
-$count = count($typeIntervention);
+        $requete = $connexion->prepare(
+            "SELECT id, name, description, color 
+            FROM intervention_type 
+            WHERE name LIKE :nom
+            LIMIT 10 OFFSET :offset"
+        );
+        $requete->bindParam(":nom", $nom);
+        $requete->bindParam(":offset", $offSet, PDO::PARAM_INT);
+        $requete->execute();
+        $typeIntervention = $requete->fetchAll(PDO::FETCH_ASSOC);
+
+    } else {
+        $requete = $connexion->prepare(
+            "SELECT id, name, description, color FROM intervention_type
+            LIMIT 10 OFFSET :offset"
+        );
+        $requete->bindParam(":offset", $offSet, PDO::PARAM_INT);
+        $requete->execute();
+        $typeIntervention = $requete->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    $count = count($typeIntervention);
+
+
+    $requetePage = $connexion->prepare("SELECT COUNT(*) AS total FROM intervention_type");
+    $requetePage->execute();
+    $nbPage = ceil($requetePage->fetch(PDO::FETCH_ASSOC)["total"] / 10);
+
 ?>
 
 <!doctype html>
@@ -104,6 +123,15 @@ $count = count($typeIntervention);
                         <?php } ?>
                     </div>
                 </section>
+                <div class="pagination">
+                <?php  
+                    for ($i = 1; $i <= $nbPage; $i++){
+                ?>
+                        <a href="types-intervention.php?page=<?= $i ?>" class="pagination-child <?= $i === $page ? 'pagination-select' : '' ?>"><?= $i ?></a>
+                <?php
+                    }
+                ?>
+                </div>
             </main>
         </div>
 
