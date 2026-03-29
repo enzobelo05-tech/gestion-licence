@@ -12,10 +12,17 @@
   $requete_modules->execute();
   $modules = $requete_modules->fetchAll(PDO::FETCH_ASSOC);
 
-  /*** filtres get ***/
-  $filtre_date_debut = $_GET['date_debut'] ?? date('d/m/Y') . ' 8:30';
-  $filtre_date_fin   = $_GET['date_fin']   ?? date('d/m/Y', strtotime('+16 days')) . ' 8:30';
+    /*** filtres get ***/
+  // On définit le format HTML5 pour les inputs
+  $format_input = 'Y-m-d\TH:i'; 
+
+  $filtre_date_debut = $_GET['date_debut'] ?? date('Y-m-d') . 'T08:30';
+  $filtre_date_fin   = $_GET['date_fin']   ?? date('Y-m-d', strtotime('+16 days')) . 'T08:30';
   $filtre_module     = $_GET['module']     ?? '';
+
+  // Variables pour l'affichage dans les value="" du HTML
+  $filtre_date_debut_input = $filtre_date_debut;
+  $filtre_date_fin_input   = $filtre_date_fin;
 
   $sql = "
     SELECT
@@ -28,9 +35,9 @@
       it.name         AS type_nom,
       it.color        AS type_couleur,
       GROUP_CONCAT(
-        CONCAT(UPPER(u.last_name), '. ', u.first_name)
-        ORDER BY u.last_name ASC
-        SEPARATOR ', '
+      DISTINCT CONCAT(UPPER(u.last_name), '. ', u.first_name) -- Ajout du DISTINCT ici
+      ORDER BY u.last_name ASC
+      SEPARATOR ', '
       ) AS intervenants
     FROM course c
     LEFT JOIN module            m   ON c.module_id            = m.id
@@ -38,14 +45,14 @@
     LEFT JOIN course_instructor ci  ON c.id                   = ci.course_id
     LEFT JOIN instructor        ins ON ci.instructor_id        = ins.id
     LEFT JOIN user              u   ON ins.user_id             = u.id
-    WHERE c.start_date <= :date_fin
-    AND c.end_date   >= :date_debut
-  ";
+    WHERE (:date_fin = '' OR c.start_date <= :date_fin)
+    AND (:date_debut = '' OR c.end_date >= :date_debut)
+";
 
   $params = [
-    ':date_debut' => DateTime::createFromFormat('d/m/Y H:i', $filtre_date_debut)?->format('Y-m-d H:i:s') ?? '',
-    ':date_fin'   => DateTime::createFromFormat('d/m/Y H:i', $filtre_date_fin)?->format('Y-m-d H:i:s') ?? '',
-  ];
+    ':date_debut' => ($d = DateTime::createFromFormat('Y-m-d\TH:i', $filtre_date_debut)) ? $d->format('Y-m-d H:i:s') : '',
+    ':date_fin'   => ($f = DateTime::createFromFormat('Y-m-d\TH:i', $filtre_date_fin))   ? $f->format('Y-m-d H:i:s') : '',
+];
 
   if ($filtre_module !== '') {
     $sql .= " AND c.module_id = :module_id";
@@ -70,13 +77,10 @@
 </head>
 <body class="listeInterventions">
 
-  <!-- /*** sidebar ***/ -->
   <?php include "html-commun/aside.php"; ?>
 
-  <!-- /*** contenu principal ***/ -->
   <div class="right-page">
 
-    <!-- /*** fil d'ariane ***/ -->
     <header>
       <div class="filAriane">
         <a href="accueil.php">
@@ -87,61 +91,77 @@
       </div>
       <hr />
     </header>
-    <!-- /*** fin fil d'ariane ***/ -->
 
     <main>
 
-      <!-- /*** en-tête de page ***/ -->
       <div class="top-main" style="display:flex; flex-direction:row; justify-content:space-between; align-items:center; width:100%; margin-bottom:24px;">
         <h1 style="margin:0;">Interventions</h1>
-        <a href="intervention-nouvelle.php" class="bouton-ajouter" >
+        <a href="intervention-nouvelle.php" class="bouton-ajouter">
           Ajouter une nouvelle intervention
         </a>
       </div>
-      <!-- /*** fin en-tête de page ***/ -->
 
       <!-- /*** filtres ***/ -->
       <div class="form-parent">
-        <p class="filter-txt">Filtres</p>
-        <form method="GET" action="page-intervention.php">
-          <div class="input-box">
+
+        <h3 class="filtres-titre">Filtres</h3>
+
+        <form class="filtres-form" method="GET" action="page-intervention.php">
+
+          <div class="filtres-field">
             <label for="date_debut">Date de début</label>
-            <input type="text" id="date_debut" name="date_debut"
-                   value="<?= htmlspecialchars($filtre_date_debut) ?>" />
+            <div class="input-icon-wrapper">
+              <input
+                type="datetime-local"
+                id="date_debut"
+                name="date_debut"
+                value="<?= htmlspecialchars($filtre_date_debut_input) ?>"
+              />
+            </div>
           </div>
-          <div class="input-box">
+
+          <div class="filtres-field">
             <label for="date_fin">Date de fin</label>
-            <input type="text" id="date_fin" name="date_fin"
-                   value="<?= htmlspecialchars($filtre_date_fin) ?>" />
+            <div class="input-icon-wrapper">
+              <input
+                type="datetime-local"
+                id="date_fin"
+                name="date_fin"
+                value="<?= htmlspecialchars($filtre_date_fin_input) ?>"
+              />
+            </div>
           </div>
-          <div class="input-box">
+
+          <div class="filtres-field">
             <label for="module">Module</label>
             <select id="module" name="module">
               <option value="">Sélectionnez le module</option>
               <?php foreach ($modules as $module) : ?>
-                <option value="<?= $module['id'] ?>" <?= $module['id'] == $filtre_module ? 'selected' : '' ?>> <?= htmlspecialchars($module['name']) ?>
+                <option value="<?= $module['id'] ?>"
+                  <?= $module['id'] == $filtre_module ? 'selected' : '' ?>>
+                  <?= htmlspecialchars($module['name']) ?>
                 </option>
               <?php endforeach; ?>
             </select>
           </div>
-          <button type="submit" class="bouton-filtrer">Filtrer</button>
+
+          <button type="submit" class="filtres-btn">Filtrer</button>
+
         </form>
-        <hr />
+
+        <hr class="filtres-separator" />
+
       </div>
       <!-- /*** fin filtres ***/ -->
 
-      <!-- /*** compteur de résultats ***/ -->
       <div class="interventions-found">
         <h3>
           <?= $nb_courses ?> intervention<?= $nb_courses > 1 ? 's' : '' ?> trouvée<?= $nb_courses > 1 ? 's' : '' ?>
         </h3>
       </div>
-      <!-- /*** fin compteur de résultats ***/ -->
 
-      <!-- /*** tableau des interventions ***/ -->
       <div class="tableau">
 
-        <!-- /*** en-têtes du tableau ***/ -->
         <div class="tableau-child">
           <p>Date de l'intervention</p>
           <p>Module &amp; titre</p>
@@ -150,9 +170,7 @@
           <p>En visio</p>
           <p></p>
         </div>
-        <!-- /*** fin en-têtes du tableau ***/ -->
 
-        <!-- /*** lignes du tableau ***/ -->
         <?php if ($nb_courses === 0) : ?>
           <div class="tableau-child">
             <p style="color:#2732409d; padding: 16px 0;">
@@ -198,8 +216,9 @@
             </div>
           <?php endforeach; ?>
         <?php endif; ?>
-        <!-- /*** fin lignes du tableau ***/ -->
+
       </div>
     </main>
+  </div>
 </body>
 </html>
