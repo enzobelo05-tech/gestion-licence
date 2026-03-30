@@ -1,10 +1,12 @@
 <?php 
   require_once "variable-connexion/config.php";
 
+  //* assignation variables
   $nom = $_GET["nom"] ?? "";
   $prenom = $_GET["prenom"] ?? "";
   $email = $_GET["email"] ?? "";
 
+  //* requete pagination
   $requetePage = "SELECT COUNT(*) AS total FROM user WHERE role = 'instructor' ";
 
   if (!empty($nom)) $requetePage .= "AND last_name LIKE :nom ";
@@ -26,13 +28,14 @@
 
   $offSet = $page * 10 - 10;
 
+  //* requete form
   $requete = "SELECT * FROM user WHERE role = 'instructor' ";
 
   if (!empty($nom)) $requete .= "AND last_name LIKE :nom ";
   if (!empty($prenom)) $requete .= "AND first_name LIKE :prenom ";
   if (!empty($email)) $requete .= "AND email LIKE :email ";
 
-  $requete .= " LIMIT 10 OFFSET :offset";
+  $requete .= " ORDER BY last_name ASC LIMIT 10 OFFSET :offset";
 
   $requeteFinal = $connexion->prepare($requete);
 
@@ -46,6 +49,7 @@
 
   $count = $total;
 
+  //* requete pop up
   if(isset($_POST["nomIns"], $_POST["prenomIns"], $_POST["emailIns"], $_POST["mdpIns"])){
 
       $nom = $_POST["nomIns"];
@@ -197,11 +201,11 @@
         <form action="" method="POST" class="formulaire">
           <div class="input-box">
             <label for="nomIns">Nom de l'enseignant</label>
-            <input type="text" name="nomIns" placeholder="Legrand">
+            <input type="text" name="nomIns" placeholder="Legrand" required>
           </div>
           <div class="input-box">
             <label for="prenomIns">Prénom de l'enseignant</label>
-            <input type="text" name="prenomIns" placeholder="Paul">
+            <input type="text" name="prenomIns" placeholder="Paul" required>
           </div>
           <div class="input-box">
             <label for="emailIns">Email de l'enseignant</label>
@@ -209,7 +213,7 @@
           </div>
           <div class="input-box">
             <label for="mdpIns">Mot de passe de l'enseignant</label>
-            <input type="password" name="mdpIns" placeholder="••••••••">
+            <input type="password" name="mdpIns" placeholder="••••••••" required>
           </div>
           <p class="cancel-btn-popUp">Annuler</p>
           <button type="submit" class="confirm-btn">Confirmer</button>
