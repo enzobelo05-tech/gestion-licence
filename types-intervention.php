@@ -19,11 +19,9 @@
         exit;
     }
 
-    // Récupère le filtre nom depuis GET (persiste lors des changements de page)
     $nomFiltre = isset($_GET['nom']) ? trim($_GET['nom']) : '';
     $nomP = $nomFiltre . '%';
 
-    // Pagination — basée sur le filtre en cours
     $requetePage = $connexion->prepare("SELECT COUNT(*) AS total FROM intervention_type WHERE name LIKE :nom");
     $requetePage->bindParam(":nom", $nomP);
     $requetePage->execute();
@@ -32,7 +30,6 @@
     $page   = isset($_GET["page"]) ? (int)$_GET["page"] : 1;
     $offSet = $page * 10 - 10;
 
-    // Requête principale avec filtre et pagination
     $requete = $connexion->prepare(
         "SELECT id, name, description, color 
          FROM intervention_type 
