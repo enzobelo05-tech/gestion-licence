@@ -1,59 +1,77 @@
 <?php 
   require_once "variable-connexion/config.php";
 
-  $count = 0;
+  $nom = $_GET["nom"] ?? "";
+  $prenom = $_GET["prenom"] ?? "";
+  $email = $_GET["email"] ?? "";
 
-  // Form pour le filtre
-  if(isset($_POST["nom"]) && isset($_POST["prenom"]) && isset($_POST["email"])){
-    $count = 0;
+  $requetePage = "SELECT COUNT(*) AS total FROM user WHERE role = 'instructor' ";
 
-    $nom = $_POST["nom"];
-    $prenom = $_POST["prenom"];
-    $email = $_POST["email"];
+  if (!empty($nom)) $requetePage .= "AND last_name LIKE :nom ";
+  if (!empty($prenom)) $requetePage .= "AND first_name LIKE :prenom ";
+  if (!empty($email)) $requetePage .= "AND email LIKE :email ";
 
-    $requete = "SELECT * FROM user WHERE 1=1 ";
+  $requetePageFinal = $connexion->prepare($requetePage);
 
-    if(!empty($_POST["nom"])) $requete = $requete . "AND last_name LIKE :nom ";
-    if(!empty($_POST["prenom"])) $requete = $requete . "AND first_name LIKE :prenom ";
-    if(!empty($_POST["email"])) $requete = $requete . "AND email LIKE :email ";
+  if (!empty($nom)) $requetePageFinal->bindValue(":nom", "%$nom%");
+  if (!empty($prenom)) $requetePageFinal->bindValue(":prenom", "%$prenom%");
+  if (!empty($email)) $requetePageFinal->bindValue(":email", "%$email%");
 
-    $requeteFinal = $connexion->prepare($requete . "AND role = 'instructor'");
-    (!empty($_POST["nom"])) ? $requeteFinal->bindValue(":nom", '%' . $nom . '%') : "";
-    (!empty($_POST["prenom"])) ? $requeteFinal->bindValue(":prenom", '%' . $prenom . '%') : "";
-    (!empty($_POST["email"])) ? $requeteFinal->bindValue(":email", '%' . $email . '%') : "";
+  $requetePageFinal->execute();
+  $total = $requetePageFinal->fetch(PDO::FETCH_ASSOC)["total"];
+  $nbPage = ceil($total / 10);
 
-    $requeteFinal->execute();
-    $enseignant = $requeteFinal->fetchAll(PDO::FETCH_ASSOC);
-  }
+  $page = isset($_GET["page"]) ? (int)$_GET["page"] : 1;
+  $page = max(1, $page);
 
-  // Form pour ajouter un enseignant
-  if(isset($_POST["nomIns"]) && isset($_POST["prenomIns"]) && isset($_POST["emailIns"]) && isset($_POST["mdpIns"])){
+  $offSet = $page * 10 - 10;
 
-    $nom = $_POST["nomIns"];
-    $prenom = $_POST["prenomIns"];
-    $email = $_POST["emailIns"];
-    $mdp = password_hash($_POST["mdpIns"], PASSWORD_ARGON2I);
+  $requete = "SELECT * FROM user WHERE role = 'instructor' ";
 
-    $requete = $connexion->prepare("
-      INSERT INTO user 
-      (role, last_name, first_name, email, password) 
-      VALUES ('instructor', :nom, :prenom, :email, :mdp)
+  if (!empty($nom)) $requete .= "AND last_name LIKE :nom ";
+  if (!empty($prenom)) $requete .= "AND first_name LIKE :prenom ";
+  if (!empty($email)) $requete .= "AND email LIKE :email ";
+
+  $requete .= " LIMIT 10 OFFSET :offset";
+
+  $requeteFinal = $connexion->prepare($requete);
+
+  if (!empty($nom)) $requeteFinal->bindValue(":nom", "%$nom%");
+  if (!empty($prenom)) $requeteFinal->bindValue(":prenom", "%$prenom%");
+  if (!empty($email)) $requeteFinal->bindValue(":email", "%$email%");
+  $requeteFinal->bindValue(":offset", $offSet, PDO::PARAM_INT);
+
+  $requeteFinal->execute();
+  $enseignant = $requeteFinal->fetchAll(PDO::FETCH_ASSOC);
+
+  $count = $total;
+
+  if(isset($_POST["nomIns"], $_POST["prenomIns"], $_POST["emailIns"], $_POST["mdpIns"])){
+
+      $nom = $_POST["nomIns"];
+      $prenom = $_POST["prenomIns"];
+      $email = $_POST["emailIns"];
+      $mdp = password_hash($_POST["mdpIns"], PASSWORD_ARGON2I);
+
+      $requete = $connexion->prepare("
+        INSERT INTO user 
+        (role, last_name, first_name, email, password) 
+        VALUES ('instructor', :nom, :prenom, :email, :mdp)
       ");
-    $requete->bindParam(":nom", $nom);
-    $requete->bindParam(":prenom", $prenom);
-    $requete->bindParam(":email", $email);
-    $requete->bindParam(":mdp", $mdp);
 
-    $requete->execute();
+      $requete->bindParam(":nom", $nom);
+      $requete->bindParam(":prenom", $prenom);
+      $requete->bindParam(":email", $email);
+      $requete->bindParam(":mdp", $mdp);
 
-    $newId = $connexion->lastInsertId();
+      $requete->execute();
 
-    $requeteIns = $connexion->prepare("INSERT INTO instructor (user_id) VALUES (:id)");
-    $requeteIns->bindParam(":id", $newId);
+      $newId = $connexion->lastInsertId();
 
-    $requeteIns->execute();
+      $requeteIns = $connexion->prepare("INSERT INTO instructor (user_id) VALUES (:id)");
+      $requeteIns->bindParam(":id", $newId);
+      $requeteIns->execute();
   }
-
 ?>
 
 <!doctype html>
@@ -83,7 +101,7 @@
         </div>
         <section class="form-parent">
           <p class="filter-txt">Filtre</p>
-          <form action="" method="POST">
+          <form action="" method="GET">
             <div class="input-box">
               <label for="nom">Nom de famille</label>
               <input type="text" name="nom" placeholder="Saisissez le nom de famille" />
@@ -101,13 +119,6 @@
           <hr />
         </section>
         <section class="enseignant-found">
-          <?php
-            if (isset($enseignant)){
-              foreach($enseignant as $ens){
-                $count += 1;
-              } 
-            }
-          ?>
           <h3><?= $count ?> enseignant trouvé(s)</h3>
           <div class="tableau">
             <div class="tableau-child">
@@ -157,6 +168,20 @@
             ?>
           </div>
         </section>
+        <div class="pagination">
+            <?php
+                if (isset($nbPage)){  
+                  for ($i = 1; $i <= $nbPage; $i++){
+                      ?>
+                      <a href="corps-enseignant.php?page=<?= $i ?>&nom=<?= urlencode($nom) ?>&prenom=<?= urlencode($prenom) ?>&email=<?= urlencode($email) ?>"
+                        class="pagination-child <?= $i === $page ? 'pagination-select' : '' ?>">
+                        <?= $i ?>
+                      </a>
+                      <?php
+                  }
+                }
+            ?>
+          </div>
       </main>
     </div>
     <section class="popUp">
