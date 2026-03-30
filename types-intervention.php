@@ -1,46 +1,49 @@
 <?php
-require_once "variable-connexion/connexion.php";
+    require_once "variable-connexion/connexion.php";
 
-$count = 0;
-$typeIntervention = [];
+    $count = 0;
+    $typeIntervention = [];
 
-// ajout popup
-if($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action']) && $_POST['action'] === 'ajouter') {
-    $nom = trim($_POST['nom_type']);
-    $description = trim($_POST['description']); // TRIM enleve les espaces inutile
-    $color = trim($_POST['color']);
+    // Ajout popup
+    if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action']) && $_POST['action'] === 'ajouter') {
+        $nom         = trim($_POST['nom_type']);
+        $description = trim($_POST['description']); // TRIM enlève les espaces inutiles
+        $color       = trim($_POST['color']);
 
-    $requete = $connexion->prepare("INSERT INTO intervention_type (name, description, color) VALUES (:nom, :description, :color)");
-    $requete-> bindParam(':nom', $nom);
-    $requete-> bindParam(':description', $description);
-    $requete-> bindParam(':color', $color);
-    $requete->execute();
-    header("Location: " . $_SERVER['PHP_SELF']);   // empeche de add la sauvegarde popup
-    exit;
-}
+        $requete = $connexion->prepare("INSERT INTO intervention_type (name, description, color) VALUES (:nom, :description, :color)");
+        $requete->bindParam(':nom', $nom);
+        $requete->bindParam(':description', $description);
+        $requete->bindParam(':color', $color);
+        $requete->execute();
+        header("Location: " . $_SERVER['PHP_SELF']); // évite de revalider le form en cas de rechargement de page.
+        exit;
+    }
 
-//filtre
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['nom'])) {
-    $nom = $_POST["nom"] . '%';
+    // Récupère le filtre nom depuis GET (persiste lors des changements de page)
+    $nomFiltre = isset($_GET['nom']) ? trim($_GET['nom']) : '';
+    $nomP = $nomFiltre . '%';
 
+    // Pagination — basée sur le filtre en cours
+    $requetePage = $connexion->prepare("SELECT COUNT(*) AS total FROM intervention_type WHERE name LIKE :nom");
+    $requetePage->bindParam(":nom", $nomP);
+    $requetePage->execute();
+    $nbPage = ceil($requetePage->fetch(PDO::FETCH_ASSOC)["total"] / 10);
+
+    $page   = isset($_GET["page"]) ? (int)$_GET["page"] : 1;
+    $offSet = $page * 10 - 10;
+
+    // Requête principale avec filtre et pagination
     $requete = $connexion->prepare(
         "SELECT id, name, description, color 
          FROM intervention_type 
-         WHERE name LIKE :nom"
+         WHERE name LIKE :nom
+         LIMIT 10 OFFSET :offset"
     );
-    $requete->bindParam(":nom", $nom);
+    $requete->bindParam(":nom", $nomP);
+    $requete->bindParam(":offset", $offSet, PDO::PARAM_INT);
     $requete->execute();
     $typeIntervention = $requete->fetchAll(PDO::FETCH_ASSOC);
-
-} else {
-    $requete = $connexion->prepare(
-        "SELECT id, name, description, color FROM intervention_type"
-    );
-    $requete->execute();
-    $typeIntervention = $requete->fetchAll(PDO::FETCH_ASSOC);
-}
-
-$count = count($typeIntervention);
+    $count = count($typeIntervention);
 ?>
 
 <!doctype html>
@@ -70,10 +73,16 @@ $count = count($typeIntervention);
                 </div>
                 <section class="form-parent">
                     <p class="filter-txt">Filtre</p>
-                    <form action="" method="POST">
+                    <!-- GET pour conserver le filtre lors des changements de page -->
+                    <form action="" method="GET">
                         <div class="input-box">
                             <label for="nom">Nom</label>
-                            <input type="text" name="nom" placeholder="Saisissez le nom" />
+                            <input
+                                type="text"
+                                name="nom"
+                                placeholder="Saisissez le nom"
+                                value="<?= htmlspecialchars($nomFiltre) ?>"
+                            />
                         </div>
                         <button type="submit">Filtrer</button>
                     </form>
@@ -84,7 +93,7 @@ $count = count($typeIntervention);
                     <div class="tableau">
                         <div class="tableau-child">
                             <p>Nom</p>
-                            <p>description</p>
+                            <p>Description</p>
                             <p>Couleur</p>
                         </div>
                         <?php foreach ($typeIntervention as $e) { ?>
@@ -104,6 +113,15 @@ $count = count($typeIntervention);
                         <?php } ?>
                     </div>
                 </section>
+                <div class="pagination">
+                    <?php for ($i = 1; $i <= $nbPage; $i++) { ?>
+                        <!-- Le filtre nom est conservé dans les liens de pagination -->
+                        <a
+                            href="types-intervention.php?page=<?= $i ?>&nom=<?= urlencode($nomFiltre) ?>"
+                            class="pagination-child <?= $i === $page ? 'pagination-select' : '' ?>"
+                        ><?= $i ?></a>
+                    <?php } ?>
+                </div>
             </main>
         </div>
 
