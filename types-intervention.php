@@ -112,7 +112,6 @@
                 </section>
                 <div class="pagination">
                     <?php for ($i = 1; $i <= $nbPage; $i++) { ?>
-                        <!-- Le filtre nom est conservé dans les liens de pagination -->
                         <a
                             href="types-intervention.php?page=<?= $i ?>&nom=<?= urlencode($nomFiltre) ?>"
                             class="pagination-child <?= $i === $page ? 'pagination-select' : '' ?>"
@@ -153,6 +152,7 @@
                                 name="color_picker"
                                 value="#2c416e"
                                 oninput="document.getElementById('color_hex').value = this.value"
+                                required
                             />
                             <input
                                 type="text"
@@ -162,6 +162,7 @@
                                 maxlength="7"
                                 pattern="^#([A-Fa-f0-9]{6})$"
                                 oninput="if(/^#[A-Fa-f0-9]{6}$/.test(this.value)) document.getElementById('color_picker').value = this.value"
+                                required
                             />
                         </div>
                     </div>
