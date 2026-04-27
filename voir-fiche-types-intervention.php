@@ -28,12 +28,22 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action']) && $_POST['a
 
 // Supprimer les infos
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action']) && $_POST['action'] === 'supprimer') {
-    $requete = $connexion->prepare("DELETE FROM intervention_type WHERE id = :id");
-    $requete->bindParam(':id', $idType);
-    $requete->execute();
+    
+    // Vérifier si des cours sont liés à ce type d'intervention
+    $check = $connexion->prepare("SELECT COUNT(*) as total FROM course WHERE intervention_type_id = :id");
+    $check->bindParam(':id', $idType);
+    $check->execute();
+    $result = $check->fetch(PDO::FETCH_ASSOC);
 
-    header("Location: types-intervention.php");
-    exit;
+    if ($result['total'] > 0) {
+        $erreurSuppression = "Impossible de supprimer ce type : " . $result['total'] . " cours y sont liés.";
+    } else {
+        $requete = $connexion->prepare("DELETE FROM intervention_type WHERE id = :id");
+        $requete->bindParam(':id', $idType);
+        $requete->execute();
+        header("Location: types-intervention.php");
+        exit;
+    }
 }
 ?>
 
