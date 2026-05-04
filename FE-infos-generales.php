@@ -28,7 +28,15 @@
     $requeteInstructor->bindParam(":id", $id);
     $requeteInstructor->execute();
     $instructor = $requeteInstructor->fetch(PDO::FETCH_ASSOC);
-    $instructorId = $instructor["id"];
+
+    if ($instructor === false) {
+        $requeteCreateInstructor = $connexion->prepare("INSERT INTO instructor (user_id) VALUES (:id)");
+        $requeteCreateInstructor->bindParam(":id", $id);
+        $requeteCreateInstructor->execute();
+        $instructorId = $connexion->lastInsertId();
+    } else {
+        $instructorId = $instructor["id"];
+    }
 
     //* envoie du form
     if ($_SERVER['REQUEST_METHOD'] === 'POST'){
