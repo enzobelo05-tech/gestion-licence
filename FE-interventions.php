@@ -97,7 +97,7 @@
         <div class="filAriane">
           <img src="assets/Home.svg" alt="Accueil" />
           <p>></p>
-          <a href="FE-corps-enseignant.php">Corps enseignant</a>
+          <a href="corps-enseignant.php">Corps enseignant</a>
           <p>></p>
           <p><?= htmlspecialchars($enseignant["first_name"]) ?> <?= htmlspecialchars($enseignant["last_name"]) ?></p>
           <p>></p>
