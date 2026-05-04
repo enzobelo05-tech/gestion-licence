@@ -163,7 +163,7 @@
                   ?>
                     <div class="voirFiche">
                       <img src="assets/SeeMore.png" alt="Voir plus">
-                      <a href="infos-generales.php?id=<?= htmlspecialchars($e['id']) ?>">Accéder à la fiche</a>
+                      <a href="FE-infos-generales.php?id=<?= htmlspecialchars($e['id']) ?>">Accéder à la fiche</a>
                     </div>
                   </div>
                   <?php

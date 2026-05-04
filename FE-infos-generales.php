@@ -58,7 +58,7 @@
           $requeteMod->execute();
       }
       $msgEnvoie = "flex";
-      header("Location: infos-generales.php?id=" . $id . "&success=1");
+      header("Location: FE-infos-generales.php?id=" . $id . "&success=1");
       exit();
     }
 ?>
@@ -106,7 +106,7 @@
         <section class="infos-ens">
             <div class="onglet">
                 <a href="">Informations générales</a>
-                <a href="interventions.php?id=<?= $id ?>">Interventions</a>
+                <a href="FE-interventions.php?id=<?= $id ?>">Interventions</a>
             </div>
             <form action="" method="POST">
                 <p>Informations générales</p>

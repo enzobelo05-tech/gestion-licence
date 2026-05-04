@@ -97,7 +97,7 @@
         <div class="filAriane">
           <img src="assets/Home.svg" alt="Accueil" />
           <p>></p>
-          <a href="corps-enseignant.php">Corps enseignant</a>
+          <a href="FE-corps-enseignant.php">Corps enseignant</a>
           <p>></p>
           <p><?= htmlspecialchars($enseignant["first_name"]) ?> <?= htmlspecialchars($enseignant["last_name"]) ?></p>
           <p>></p>
@@ -122,7 +122,7 @@
         </div>
         <section class="infos-ens">
             <div class="onglet">
-                <a href="infos-generales.php?id=<?= $id ?>">Informations générales</a>
+                <a href="FE-infos-generales.php?id=<?= $id ?>">Informations générales</a>
                 <a href="">Interventions</a>
             </div>
             <p class="form-title">Filtrer les interventions</p>
