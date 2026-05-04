@@ -209,7 +209,7 @@
           </div>
           <div class="input-box">
             <label for="emailIns">Email de l'enseignant</label>
-            <input type="email" name="emailIns" placeholder="Paul.Legrand@gmail.com">
+            <input type="email" name="emailIns" placeholder="Paul.Legrand@gmail.com" required>
           </div>
           <div class="input-box">
             <label for="mdpIns">Mot de passe de l'enseignant</label>
