@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(/c/xampp/mysql/bin/mysql.exe -u root projet_php -e \"SELECT c.id, c.title, c.module_id, m.name AS module_nom, it.name AS type_nom FROM course c LEFT JOIN module m ON c.module_id = m.id LEFT JOIN intervention_type it ON c.intervention_type_id = it.id LIMIT 5;\")",
+      "Bash(/c/xampp/php/php.exe -r 'require \"variable-connexion/config.php\"; $r = $connexion->query\\(\"SELECT c.id, c.title, c.module_id, m.id AS m_id, m.name AS module_nom FROM course c LEFT JOIN module m ON c.module_id = m.id\"\\); foreach\\($r as $row\\) { echo \"course_id={$row[\"id\"]} title={$row[\"title\"]} c.module_id={$row[\"module_id\"]} m.id={$row[\"m_id\"]} module={$row[\"module_nom\"]}\\\\n\"; }')",
+      "Bash(/c/xampp/mysql/bin/mysql.exe -u root projet_php -e \"SELECT COUNT\\(*\\) FROM course WHERE title='SIUUU'; SELECT COUNT\\(*\\) FROM course WHERE title!='SIUUU';\")"
+    ]
+  }
+}
