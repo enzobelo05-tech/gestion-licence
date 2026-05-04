@@ -9,6 +9,7 @@
     --couleur-secondaire-hover: #f2b100;
     --taille-texte-principal: 15px;
     --taille-texte-secondaire: 12px;
+    --couleur-texte-tertiaire: #ff0000;
 }
 
 * {
@@ -1177,7 +1178,6 @@ header hr {
         PAGE : Liste des Interventions
 *******************************************/
 
-/* Menu actif dans la sidebar */
 .listeInterventions .aside-page .menu-child:nth-child(2) {
     background-color: var(--couleur-principal);
     color: white;
@@ -1186,7 +1186,6 @@ header hr {
     filter: brightness(0) invert(1);
 }
 
-/* Header avec titre et bouton ajouter */
 .listeInterventions .top-main {
     display: flex;
     justify-content: space-between;
@@ -1200,7 +1199,6 @@ header hr {
     margin: 0;
 }
 
-/* Bouton "Ajouter une nouvelle intervention" */
 .listeInterventions .bouton-ajouter {
     background-color: var(--couleur-principal);
     color: white;
@@ -1219,6 +1217,85 @@ header hr {
     height: 20px;
 }
 
+.listeInterventions .popUp .formulaire {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    width: 60vw;
+    max-width: 650px;
+    margin-top: -10px;
+}
+
+.listeInterventions .popUp .formulaire .grid-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+}
+
+.listeInterventions .popUp .formulaire .full-width {
+    width: 100%;
+}
+
+.listeInterventions .popUp .formulaire .input-box label {
+    font-size: var(--taille-texte-principal);
+    font-weight: 500;
+    margin-bottom: 4px;
+}
+
+.listeInterventions .popUp .formulaire .input-box input,
+.listeInterventions .popUp .formulaire .input-box select {
+    padding: 9px 10px;
+    border: 1px solid #23345645;
+    border-radius: 5px;
+    font-size: var(--taille-texte-principal);
+    color: black;
+    background-color: white;
+    box-sizing: border-box;
+}
+
+.listeInterventions .popUp .btn-form {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 10px;
+}
+
+.listeInterventions .popUp .cancel-btn-popUp {
+    padding: 10px 30px;
+    background-color: #eaeaea;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: var(--taille-texte-principal);
+    transition: all 0.3s ease;
+}
+
+.listeInterventions .popUp .cancel-btn-popUp:hover {
+    background-color: #dadada;
+}
+
+.listeInterventions .popUp .confirm-btn {
+    padding: 10px 30px;
+    background-color: var(--couleur-principal);
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: var(--taille-texte-principal);
+    transition: all 0.3s ease;
+}
+.listeInterventions .popUp .delete-btn {
+    padding: 10px 30px;
+    background-color: var(--couleur-texte-tertiaire);
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: var(--taille-texte-principal);
+    transition: all 0.3s ease;
+}
+.listeInterventions .popUp .confirm-btn:hover {
+    background-color: var(--couleur-principal-hover);
+}
 /* Section Filtres */
 /* ── Nouveaux filtres avec icône calendrier ── */
 .listeInterventions .filtres-titre {
@@ -1415,4 +1492,47 @@ header hr {
     width: 16px;
     height: 16px;
     transition: transform 0.3s ease;
+}
+
+/* Bouton "Accéder à la fiche" (réinitialisation des styles bouton) */
+.listeInterventions button.voirFiche {
+    background: none;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    font: inherit;
+}
+
+/* Pagination */
+.listeInterventions .pagination {
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+    margin: 24px 0 8px;
+}
+.listeInterventions .pagination-child {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 32px;
+    height: 32px;
+    padding: 0 10px;
+    border: 1px solid #d0d5dd;
+    border-radius: 6px;
+    color: var(--couleur-principal);
+    text-decoration: none;
+    font-size: var(--taille-texte-secondaire);
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+.listeInterventions .pagination-child:hover {
+    background-color: var(--couleur-fond-nav);
+}
+.listeInterventions .pagination-select {
+    background-color: var(--couleur-principal);
+    color: #fff;
+    border-color: var(--couleur-principal);
+}
+.listeInterventions .pagination-select:hover {
+    background-color: var(--couleur-principal-hover);
 }
