@@ -1,3 +1,12 @@
+<?php
+  require_once "variable-connexion/connexion.php";
+
+  $requete = $connexion->prepare("SELECT * FROM user WHERE id = 1");
+
+  $requete->execute();
+  $user = $requete->fetch(PDO::FETCH_ASSOC);
+?>
+
 <aside class="aside-page">
   <nav>
     <div class="logo">
@@ -28,7 +37,7 @@
       <div class="parametrage">
         <p class="nav-title">PARAMETRAGE</p>
         <div class="parametrage-nav">
-          <a href="" class="parametrage-child">
+          <a href="module.php" class="parametrage-child">
             <img src="assets/Module.svg" alt="Modules" />
             <p>Modules</p>
           </a>
@@ -45,7 +54,9 @@
       <p> Stella Ribas</p>
       <p>admin</p>
       <a href="deconnexion.php">Se déconnecter</a>
+        <p><?= htmlspecialchars($user["first_name"]) ?> <?= htmlspecialchars($user["last_name"]) ?>⏷</p>
+
+        <p><?= htmlspecialchars($user["role"]) ?></p>
       </div>
     </div>
-  </nav>
 </aside>
