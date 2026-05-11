@@ -34,7 +34,9 @@
         "SELECT id, name, description, color 
          FROM intervention_type 
          WHERE name LIKE :nom
+         ORDER BY name ASC
          LIMIT 10 OFFSET :offset"
+        
     );
     $requete->bindParam(":nom", $nomP);
     $requete->bindParam(":offset", $offSet, PDO::PARAM_INT);

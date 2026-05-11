@@ -54,9 +54,7 @@
       <p> Stella Ribas</p>
       <p>admin</p>
       <a href="deconnexion.php">Se déconnecter</a>
-        <p><?= htmlspecialchars($user["first_name"]) ?> <?= htmlspecialchars($user["last_name"]) ?>⏷</p>
 
-        <p><?= htmlspecialchars($user["role"]) ?></p>
       </div>
     </div>
 </aside>
