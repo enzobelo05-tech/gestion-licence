@@ -51,10 +51,9 @@
     <div class="userConnexion">
       <img src="assets/pdpUser-removebg-preview.png" alt="user">
       <div class="userInfo">
-      <p> Stella Ribas</p>
-      <p>admin</p>
-      <a href="deconnexion.php">Se déconnecter</a>
-
+        <p><?= htmlspecialchars($user["first_name"]) ?> <?= htmlspecialchars($user["last_name"]) ?>⏷</p>
+        <p><?= htmlspecialchars($user["role"]) ?></p>
       </div>
     </div>
+  </nav>
 </aside>
