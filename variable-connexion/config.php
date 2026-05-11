@@ -2,7 +2,7 @@
 $isMac = strtoupper(PHP_OS) === 'DARWIN';
 
 if ($isMac) {
-    $host   = "127.0.0.1";
+    $host   = "localhost";
     $user   = "root";
     $pass   = "root";       // ← ton mot de passe MAMP
     $dbName = "projet_php";
