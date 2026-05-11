@@ -15,7 +15,7 @@
             <img src="assets/Calendrier.svg" alt="Calendrier" />
             <p>Calendrier</p>
           </a>
-          <a href="" class="menu-child">
+          <a href="page-intervention.php" class="menu-child">
             <img src="assets/Intervention.svg" alt="Interventions" />
             <p>Interventions</p>
           </a>
@@ -32,7 +32,7 @@
             <img src="assets/Module.svg" alt="Modules" />
             <p>Modules</p>
           </a>
-          <a href="" class="parametrage-child">
+          <a href="types-intervention.php" class="parametrage-child">
             <img src="assets/Intervention.svg" alt="Types Interventions" />
             <p>Types d'intervention</p>
           </a>
@@ -45,7 +45,6 @@
       <p> Stella Ribas</p>
       <p>admin</p>
       <a href="deconnexion.php">Se déconnecter</a>
-
       </div>
     </div>
   </nav>

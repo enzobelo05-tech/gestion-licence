@@ -24,7 +24,7 @@
             <img src="assets/Calendrier.svg" alt="Calendrier" />
             <p>Calendrier</p>
           </a>
-          <a href="interventions.php" class="menu-child">
+          <a href="page-intervention.php" class="menu-child">
             <img src="assets/Intervention.svg" alt="Interventions" />
             <p>Interventions</p>
           </a>
