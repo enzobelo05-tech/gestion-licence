@@ -37,7 +37,7 @@
       <div class="parametrage">
         <p class="nav-title">PARAMETRAGE</p>
         <div class="parametrage-nav">
-          <a href="" class="parametrage-child">
+          <a href="module.php" class="parametrage-child">
             <img src="assets/Module.svg" alt="Modules" />
             <p>Modules</p>
           </a>
@@ -59,5 +59,4 @@
         <p><?= htmlspecialchars($user["role"]) ?></p>
       </div>
     </div>
-  </nav>
 </aside>

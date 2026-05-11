@@ -37,7 +37,7 @@
       <div class="parametrage">
         <p class="nav-title">PARAMETRAGE</p>
         <div class="parametrage-nav">
-          <a href="modul.php" class="parametrage-child">
+          <a href="module.php" class="parametrage-child">
             <img src="assets/Module.svg" alt="Modules" />
             <p>Modules</p>
           </a>
