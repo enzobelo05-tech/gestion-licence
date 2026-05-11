@@ -66,16 +66,16 @@
           $requeteMod->execute();
       }
       $msgEnvoie = "flex";
-      header("Location: FE-infos-generales.php?id=" . $id . "&success=1");
+      header("Location: infos-generales.php?id=" . $id . "&success=1");
       exit();
     }
 ?>
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FE-Informations générales</title>
+    <title>Informations générales</title>
     <link rel="stylesheet" href="styles.css">
     <link href="https://cdn.jsdelivr.net/npm/tom-select/dist/css/tom-select.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/tom-select/dist/js/tom-select.complete.min.js"></script>
@@ -114,7 +114,7 @@
         <section class="infos-ens">
             <div class="onglet">
                 <a href="">Informations générales</a>
-                <a href="FE-interventions.php?id=<?= $id ?>">Interventions</a>
+                <a href="interventions.php?id=<?= $id ?>">Interventions</a>
             </div>
             <form action="" method="POST">
                 <p>Informations générales</p>

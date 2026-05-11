@@ -21,7 +21,7 @@ if(isset($_POST['mail']) && isset($_POST['password'])) {
             $_SESSION['id'] = $resultat['id'];
             $_SESSION['email'] = $resultat['email'];
             $_SESSION['role'] = $resultat['role'];
-            header('Location: dashboard.php');
+            header('Location: calendrier.php');
             exit();
         } else {
             $erreur = "Email ou mot de passe incorrect.";

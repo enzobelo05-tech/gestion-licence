@@ -1,40 +1,9 @@
 <?php
 require_once __DIR__ . '/variable-connexion/config.php';
 
-function getNextModulePosition(PDO $connexion, ?int $parentId, ?int $excludedModuleId = null): int
-{
-    if ($parentId === null) {
-        $sql = 'SELECT COALESCE(MAX(position), 0) + 1 FROM module WHERE parent_id IS NULL';
-        if ($excludedModuleId !== null) {
-            $sql .= ' AND id != :excluded_id';
-        }
-
-        $stmt = $connexion->prepare($sql);
-        if ($excludedModuleId !== null) {
-            $stmt->bindValue(':excluded_id', $excludedModuleId, PDO::PARAM_INT);
-        }
-    } else {
-        $sql = 'SELECT COALESCE(MAX(position), 0) + 1 FROM module WHERE parent_id = :parent_id';
-        if ($excludedModuleId !== null) {
-            $sql .= ' AND id != :excluded_id';
-        }
-
-        $stmt = $connexion->prepare($sql);
-        $stmt->bindValue(':parent_id', $parentId, PDO::PARAM_INT);
-        if ($excludedModuleId !== null) {
-            $stmt->bindValue(':excluded_id', $excludedModuleId, PDO::PARAM_INT);
-        }
-    }
-
-    $stmt->execute();
-
-    return (int) $stmt->fetchColumn();
-}
-
 $isEditMode = isset($_GET['id']) && ctype_digit($_GET['id']);
 $moduleId = $isEditMode ? (int) $_GET['id'] : null;
 $currentParentId = null;
-$currentPosition = null;
 
 $errors = [];
 $moduleData = [
@@ -69,7 +38,6 @@ if ($isEditMode) {
         'capstone_project' => (int) ($row['capstone_project'] ?? 0),
     ];
     $currentParentId = $row['parent_id'] === null ? null : (int) $row['parent_id'];
-    $currentPosition = isset($row['position']) ? (int) $row['position'] : null;
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -153,22 +121,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if (empty($errors)) {
-        $position = $currentPosition;
-
-        if (!$isEditMode) {
-            $position = getNextModulePosition($connexion, $parentId);
-        } else {
-            $parentChanged = $currentParentId !== $parentId;
-            if ($parentChanged || $position === null || $position <= 0) {
-                $position = getNextModulePosition($connexion, $parentId, $moduleId);
-            }
-        }
-
         if ($isEditMode) {
-            $stmt = $connexion->prepare('UPDATE module SET code = :code, name = :name, description = :description, hours_count = :hours_count, parent_id = :parent_id, position = :position, capstone_project = :capstone_project WHERE id = :id');
+            $stmt = $connexion->prepare('UPDATE module SET code = :code, name = :name, description = :description, hours_count = :hours_count, parent_id = :parent_id, capstone_project = :capstone_project WHERE id = :id');
             $stmt->bindValue(':id', $moduleId, PDO::PARAM_INT);
         } else {
-            $stmt = $connexion->prepare('INSERT INTO module (code, name, description, hours_count, parent_id, position, capstone_project) VALUES (:code, :name, :description, :hours_count, :parent_id, :position, :capstone_project)');
+            $stmt = $connexion->prepare('INSERT INTO module (code, name, description, hours_count, parent_id, capstone_project) VALUES (:code, :name, :description, :hours_count, :parent_id, :capstone_project)');
         }
 
         $stmt->bindValue(':code', $moduleData['code']);
@@ -176,7 +133,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->bindValue(':description', $moduleData['description']);
         $stmt->bindValue(':hours_count', $hoursCount, $hoursCount === null ? PDO::PARAM_NULL : PDO::PARAM_INT);
         $stmt->bindValue(':parent_id', $parentId, $parentId === null ? PDO::PARAM_NULL : PDO::PARAM_INT);
-        $stmt->bindValue(':position', $position, PDO::PARAM_INT);
         $stmt->bindValue(':capstone_project', (int) $moduleData['capstone_project'], PDO::PARAM_INT);
         $stmt->execute();
 
