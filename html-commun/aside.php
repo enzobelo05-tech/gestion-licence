@@ -1,12 +1,3 @@
-<?php
-  require_once "variable-connexion/connexion.php";
-
-  $requete = $connexion->prepare("SELECT * FROM user WHERE id = 1");
-
-  $requete->execute();
-  $user = $requete->fetch(PDO::FETCH_ASSOC);
-?>
-
 <aside class="aside-page">
   <nav>
     <div class="logo">
@@ -24,7 +15,7 @@
             <img src="assets/Calendrier.svg" alt="Calendrier" />
             <p>Calendrier</p>
           </a>
-          <a href="page-intervention.php" class="menu-child">
+          <a href="" class="menu-child">
             <img src="assets/Intervention.svg" alt="Interventions" />
             <p>Interventions</p>
           </a>
@@ -37,11 +28,11 @@
       <div class="parametrage">
         <p class="nav-title">PARAMETRAGE</p>
         <div class="parametrage-nav">
-          <a href="module.php" class="parametrage-child">
+          <a href="" class="parametrage-child">
             <img src="assets/Module.svg" alt="Modules" />
             <p>Modules</p>
           </a>
-          <a href="types-intervention.php" class="parametrage-child">
+          <a href="" class="parametrage-child">
             <img src="assets/Intervention.svg" alt="Types Interventions" />
             <p>Types d'intervention</p>
           </a>
@@ -51,12 +42,10 @@
     <div class="userConnexion">
       <img src="assets/pdpUser-removebg-preview.png" alt="user">
       <div class="userInfo">
-      <p> Stella Ribas</p>
-      <p>admin</p>
-      <a href="deconnexion.php">Se déconnecter</a>
         <p><?= htmlspecialchars($user["first_name"]) ?> <?= htmlspecialchars($user["last_name"]) ?>⏷</p>
-
         <p><?= htmlspecialchars($user["role"]) ?></p>
+        <a href="deconnexion.php">Se déconnecter</a>
       </div>
     </div>
+  </nav>
 </aside>
