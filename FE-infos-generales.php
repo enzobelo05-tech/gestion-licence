@@ -1,4 +1,5 @@
-<?php 
+<?php
+    require_once "variable-connexion/auth.php";
     require_once "variable-connexion/config.php";
 
     $id = $_GET["id"];

@@ -1,5 +1,5 @@
 <?php
-session_start();
+require_once "variable-connexion/auth.php";
 
 // Si l'utilisateur n'est pas connecté, on le renvoie vers la page de connexion
 if (!isset($_SESSION['id'])) {
