@@ -1,4 +1,5 @@
 <?php
+require_once "variable-connexion/auth.php";
 require_once __DIR__ . '/variable-connexion/config.php';
 
 $requete = $connexion->query(

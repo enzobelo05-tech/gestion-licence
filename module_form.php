@@ -1,5 +1,6 @@
 <?php
-require_once __DIR__ . '/variable-connexion/config.php';
+    require_once "variable-connexion/auth.php";
+    require_once __DIR__ . '/variable-connexion/config.php';
 
 $isEditMode = isset($_GET['id']) && ctype_digit($_GET['id']);
 $moduleId = $isEditMode ? (int) $_GET['id'] : null;
