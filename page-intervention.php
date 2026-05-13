@@ -1,12 +1,5 @@
 <?php
 require_once "variable-connexion/auth.php";
-
-// Si l'utilisateur n'est pas connecté, on le renvoie vers la page de connexion
-if (!isset($_SESSION['id'])) {
-    header('Location: accueil.php');
-    exit;
-}
-
 require_once "variable-connexion/config.php";
 
 /* ============================================================
@@ -242,7 +235,7 @@ $courses = $req->fetchAll(PDO::FETCH_ASSOC);
     <title>Interventions — Lycée Saint-Vincent</title>
     <link rel="stylesheet" href="styles.css" />
     <link href="https://cdn.jsdelivr.net/npm/tom-select/dist/css/tom-select.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/tom-select/dist/js/tom-select.complete.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/tom-select/dist/js/tom-select.complete.min.js"></script>
     <script src="script.js" defer></script>
 </head>
 <body class="listeInterventions">
@@ -265,9 +258,7 @@ $courses = $req->fetchAll(PDO::FETCH_ASSOC);
         <main>
             <div class="top-main">
                 <h1>Interventions</h1>
-                <button class="bouton-ajouter" id="btn-open-popUp">
-                    Ajouter une nouvelle intervention
-                </button>
+                <button type="submit" value="add" class="bouton-ajouter addInter" id="btn-open-popUp">Ajouter une nouvelle intervention</button>
             </div>
 
             <?php if (isset($_GET['success'])) : ?>
@@ -354,7 +345,7 @@ $courses = $req->fetchAll(PDO::FETCH_ASSOC);
 
                         <div class="input-box full-width">
                             <label>Intervenants - champ obligatoire</label>
-                            <select name="intervenants[]" class="select-intervenants" multiple required>
+                            <select name="intervenants[]" class="select-intervenants" id="intervenants" multiple required>
                                 <?php foreach ($intervenants as $i) : ?>
                                     <option value="<?= $i['instructor_id'] ?>"
                                         <?= ($erreur_action === 'ajouter' && in_array((int)$i['instructor_id'], $post_intervenants)) ? 'selected' : '' ?>>
@@ -449,7 +440,7 @@ $courses = $req->fetchAll(PDO::FETCH_ASSOC);
 
                         <div class="input-box full-width">
                             <label>Intervenants - champ obligatoire</label>
-                            <select name="intervenants[]" class="select-intervenants" multiple required>
+                            <select name="intervenants[]" class="select-intervenants" id="intervenants" multiple required>
                                 <?php foreach ($intervenants as $i) : ?>
                                     <option value="<?= $i['instructor_id'] ?>"
                                         <?= ($erreur_action === 'modifier' && in_array((int)$i['instructor_id'], $post_intervenants)) ? 'selected' : '' ?>>
@@ -607,23 +598,10 @@ $courses = $req->fetchAll(PDO::FETCH_ASSOC);
 
         </main>
     </div>
-
-    <!-- Données pour le filtrage côté client (intervenants par module) -->
     <script>
-        window.MAP_MODULE_INTERVENANTS = <?= json_encode($mapModuleIntervenants, JSON_UNESCAPED_UNICODE) ?>;
-    </script>
-
-    <?php if ($erreur_action) : ?>
-    <!-- S'il y a eu une erreur de validation, on rouvre la bonne modale automatiquement -->
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            var modalId = '<?= $erreur_action === 'ajouter' ? 'popUp-ajout' : 'popUp-edit' ?>';
-            var modal   = document.getElementById(modalId);
-            var overlay = document.getElementById('overlay');
-            if (modal)   modal.style.display   = 'flex';
-            if (overlay) overlay.style.display = 'block';
+        new TomSelect('#intervenants', {
+            plugins: ['remove_button'],
         });
     </script>
-    <?php endif; ?>
 </body>
 </html>
