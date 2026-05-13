@@ -1,4 +1,5 @@
-<?php 
+<?php
+    require_once "variable-connexion/auth.php";
     require_once "variable-connexion/config.php";
 
     /** Convertit un datetime-local HTML5 en "Y-m-d H:i:s" ou null */
