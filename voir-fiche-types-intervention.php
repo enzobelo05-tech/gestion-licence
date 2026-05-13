@@ -27,9 +27,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action']) && $_POST['a
 }
 
 // Supprimer les infos
+$erreurSuppression = '';
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action']) && $_POST['action'] === 'supprimer') {
     
-    // Vérifier si des cours sont liés à ce type d'intervention
     $check = $connexion->prepare("SELECT COUNT(*) as total FROM course WHERE intervention_type_id = :id");
     $check->bindParam(':id', $idType);
     $check->execute();
@@ -74,6 +74,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action']) && $_POST['a
                     <h2><?= htmlspecialchars($type['name']) ?></h2>
                     <br>
                 </div>
+
+                
+                <?php if (!empty($erreurSuppression)) { // message erreur ?>
+                    <div class="error-message">
+                        <?= htmlspecialchars($erreurSuppression) ?>
+                    </div>
+                <?php } ?>
+
                 <section class="form-parent">
                     <form action="" method="POST">
                         <input type="hidden" name="action" value="modifier" />
