@@ -56,7 +56,7 @@
         <script src="script.js" defer></script>
     </head>
     <body class="type-intervention">
-        <?php require "html-commun/aside-enzo.php" ?>
+        <?php require "html-commun/aside.php" ?>
         <div class="right-page">
             <header>
                 <div class="filAriane">

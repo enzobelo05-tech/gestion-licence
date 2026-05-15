@@ -58,7 +58,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action']) && $_POST['a
         <script src="script.js" defer></script>
     </head>
     <body class="fiche-type-intervention">
-        <?php require "html-commun/aside-enzo.php" ?>
+        <?php require "html-commun/aside.php" ?>
         <div class="right-page">
             <header>
                 <div class="filAriane">
