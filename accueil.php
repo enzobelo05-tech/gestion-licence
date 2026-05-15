@@ -1,8 +1,6 @@
 <?php
-require_once "variable-connexion/auth.php";
+session_start();
 require_once "variable-connexion/connexion.php";
-
-
 
 $erreur = "";
 
