@@ -1,4 +1,5 @@
 <?php
+    require_once "variable-connexion/auth.php";
     require_once "variable-connexion/config.php";
     
 
@@ -38,15 +39,18 @@
     // Requete intervention de la semaine 
 
     $requete = $connexion->prepare("
-    SELECT course.id AS course_id, start_date, end_date, title, module.name AS module_name, intervention_type.name AS type_name, remotely
-    FROM course 
-    JOIN module ON module.id = course.module_id 
-    JOIN intervention_type ON intervention_type.id = course.intervention_type_id
-    JOIN course_instructor ON course_instructor.course_id = course.id
-    WHERE start_date >= :dateActuel
-    AND end_date <= :dateFin
-    GROUP BY course.id
-    ORDER BY start_date DESC
+    SELECT c.id AS course_id, c.start_date, c.end_date, c.title, m.name AS module_name, it.name AS type_name, c.remotely,
+           GROUP_CONCAT(DISTINCT CONCAT(SUBSTRING(u.first_name, 1, 1), '. ', u.last_name) SEPARATOR ', ') AS intervenants_noms
+    FROM course c
+    JOIN module m ON m.id = c.module_id 
+    JOIN intervention_type it ON it.id = c.intervention_type_id
+    LEFT JOIN course_instructor ci ON ci.course_id = c.id
+    LEFT JOIN instructor i ON i.id = ci.instructor_id
+    LEFT JOIN user u ON u.id = i.user_id
+    WHERE c.start_date >= :dateActuel
+    AND c.end_date <= :dateFin
+    GROUP BY c.id
+    ORDER BY c.start_date DESC
     LIMIT 10 
     OFFSET :offset
     ");
@@ -202,29 +206,7 @@
                     <p><?= htmlspecialchars($dateFormatee) ?> <br> <?= htmlspecialchars($heureDebut) . " à " . htmlspecialchars($heureFin) ?></p>
                     <p><?= htmlspecialchars($i["module_name"]) ?> / <?= htmlspecialchars($i["title"]) ?></p>
                     <p><?= htmlspecialchars($i["type_name"]) ?></p>
-                    <p>
-                    <?php
-
-                    $requeteEns = $connexion->prepare("
-                        SELECT user.last_name, user.first_name
-                        FROM course
-                        JOIN course_instructor ON course_instructor.course_id = course.id
-                        JOIN instructor ON instructor.id = course_instructor.instructor_id
-                        JOIN user ON user.id = instructor.user_id
-                        WHERE course.id = :courseId
-                    ");
-                    $requeteEns->bindParam(":courseId", $i["course_id"]);
-                    $requeteEns->execute();
-                    $enseignants = $requeteEns->fetchAll(PDO::FETCH_ASSOC);
-
-                    foreach($enseignants as $en){
-                        $initial = $en["first_name"];
-                        ?>
-                            <?= htmlspecialchars($initial[0]) ?>. <?= htmlspecialchars($en["last_name"]) ?>
-                        <?php
-                    }
-                    ?>
-                        </p>                        
+                    <p><?= htmlspecialchars($i["intervenants_noms"] ?? "") ?></p>                        
                     <?php
                         if ($i["remotely"]){
                             ?>

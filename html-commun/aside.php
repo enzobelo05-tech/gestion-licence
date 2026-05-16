@@ -1,5 +1,5 @@
 <?php
-  require_once "variable-connexion/config.php";
+  require_once "variable-connexion/connexion.php";
 
   $requete = $connexion->prepare("SELECT * FROM user WHERE id = 1");
 
@@ -24,7 +24,7 @@
             <img src="assets/Calendrier.svg" alt="Calendrier" />
             <p>Calendrier</p>
           </a>
-          <a href="calendrier.php" class="menu-child">
+          <a href="page-intervention.php" class="menu-child">
             <img src="assets/Intervention.svg" alt="Interventions" />
             <p>Interventions</p>
           </a>
@@ -51,11 +51,7 @@
     <div class="userConnexion">
       <img src="assets/pdpUser-removebg-preview.png" alt="user">
       <div class="userInfo">
-      <p>Stella Ribas</p>
-      <p>admin</p>
-      <a href="deconnexion.php">Se déconnecter</a>
         <p><?= htmlspecialchars($user["first_name"]) ?> <?= htmlspecialchars($user["last_name"]) ?>⏷</p>
-
         <p><?= htmlspecialchars($user["role"]) ?></p>
       </div>
     </div>

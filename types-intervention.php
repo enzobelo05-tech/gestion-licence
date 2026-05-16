@@ -1,4 +1,5 @@
 <?php
+    require_once "variable-connexion/auth.php";
     require_once "variable-connexion/connexion.php";
 
     $count = 0;
@@ -34,7 +35,9 @@
         "SELECT id, name, description, color 
          FROM intervention_type 
          WHERE name LIKE :nom
+         ORDER BY name ASC
          LIMIT 10 OFFSET :offset"
+        
     );
     $requete->bindParam(":nom", $nomP);
     $requete->bindParam(":offset", $offSet, PDO::PARAM_INT);
@@ -53,7 +56,7 @@
         <script src="script.js" defer></script>
     </head>
     <body class="type-intervention">
-        <?php require "html-commun/aside-enzo.php" ?>
+        <?php require "html-commun/aside.php" ?>
         <div class="right-page">
             <header>
                 <div class="filAriane">

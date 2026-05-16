@@ -1,10 +1,21 @@
-<?php 
+<?php
+    require_once "variable-connexion/auth.php";
     require_once "variable-connexion/config.php";
 
-    $id = $_GET["id"];
-    $count = 0;
+    /** Convertit un datetime-local HTML5 en "Y-m-d H:i:s" ou null */
+    function toMysqlDateTime(?string $value): ?string {
+        if ($value === null || trim($value) === '') return null;
+        $d = DateTime::createFromFormat('Y-m-d\TH:i', $value)
+           ?: DateTime::createFromFormat('Y-m-d\TH:i:s', $value);
+        return $d ? $d->format('Y-m-d H:i:s') : null;
+    }
 
-    //* requete pour les infos du user
+    $id = (int) ($_GET["id"] ?? 0);
+    if ($id <= 0) {
+        die("ID d'enseignant manquant ou invalide.");
+    }
+
+    //* Requete pour les infos du user
     $requeteID = $connexion->prepare("SELECT * FROM user WHERE id = :id");
     $requeteID->bindParam(":id", $id);
 
@@ -12,7 +23,7 @@
     $enseignant = $requeteID->fetch(PDO::FETCH_ASSOC);
 
     //* requete pour le nom et les heures des modules du user
-    $requeteModUser = $connexion->prepare("SELECT module.name, module.hours_count, module.id FROM user JOIN instructor ON instructor.user_id = user.id JOIN instructor_module ON instructor_module.instructor_id = instructor.id JOIN module ON module.id = instructor_module.module_id WHERE user.id = :id");
+    $requeteModUser = $connexion->prepare("SELECT m.name, m.hours_count, m.id FROM module m JOIN instructor_module im ON m.id = im.module_id JOIN instructor i ON i.id = im.instructor_id WHERE i.user_id = :id ORDER BY m.name ASC");
     $requeteModUser->bindParam(":id", $id);
 
     $requeteModUser->execute();
@@ -23,67 +34,74 @@
     $requeteInstructor->bindParam(":id", $id);
     $requeteInstructor->execute();
     $instructor = $requeteInstructor->fetch(PDO::FETCH_ASSOC);
-    $instructorId = $instructor["id"];
+    $instructorId = $instructor ? (int)$instructor["id"] : 0;
 
-    //* envoie du form
-    $moduleID = $_GET["module"] ?? "";
-    $dateDebut = $_GET["dateDebut"] ?? "";
-    $dateFin = $_GET["dateFin"] ?? "";
+    //* Filtres et Pagination
+    $filtre_date_debut = $_GET["dateDebut"] ?? "";
+    $filtre_date_fin   = $_GET["dateFin"]   ?? "";
+    $filtre_module     = $_GET["module"]    ?? "";
 
-    $requetePage = "
-        SELECT COUNT(*) AS total 
-        FROM course
-        JOIN course_instructor ON course_instructor.course_id = course.id
-        WHERE course_instructor.instructor_id = :instructorId
-    ";
+    $page     = max(1, (int) ($_GET["page"] ?? 1));
+    $par_page = 10;
+    $offset   = ($page - 1) * $par_page;
 
-    if (!empty($dateDebut)) $requetePage .= " AND course.start_date >= :debut";
-    if (!empty($dateFin)) $requetePage .= " AND course.end_date <= :fin";
-    if (!empty($moduleID)) $requetePage .= " AND course.module_id = :moduleId";
+    /* Construction dynamique du WHERE */
+    $where  = ["ci.instructor_id = :instructorId"];
+    $params = [':instructorId' => $instructorId];
 
-    $requetePageFinal = $connexion->prepare($requetePage);
-    $requetePageFinal->bindValue(":instructorId", $instructorId, PDO::PARAM_INT);
-    if (!empty($dateDebut)) $requetePageFinal->bindValue(":debut", $dateDebut);
-    if (!empty($dateFin)) $requetePageFinal->bindValue(":fin", $dateFin);
-    if (!empty($moduleID)) $requetePageFinal->bindValue(":moduleId", $moduleID, PDO::PARAM_INT);
+    if ($d = toMysqlDateTime($filtre_date_debut)) {
+        $where[]         = "c.start_date >= :debut";
+        $params[':debut'] = $d;
+    }
+    if ($f = toMysqlDateTime($filtre_date_fin)) {
+        $where[]       = "c.end_date <= :fin";
+        $params[':fin'] = $f;
+    }
+    if (!empty($filtre_module)) {
+        $where[]             = "c.module_id = :moduleId";
+        $params[':moduleId'] = (int)$filtre_module;
+    }
+    $sqlWhere = "WHERE " . implode(' AND ', $where);
 
-    $requetePageFinal->execute();
-    $total = $requetePageFinal->fetch(PDO::FETCH_ASSOC)["total"];
-    $nbPage = ceil($total / 10);
+    /* Total pour la pagination */
+    $reqCount = $connexion->prepare("SELECT COUNT(DISTINCT c.id) FROM course c JOIN course_instructor ci ON c.id = ci.course_id $sqlWhere");
+    $reqCount->execute($params);
+    $total = (int) $reqCount->fetchColumn();
+    $nbPage = max(1, (int) ceil($total / $par_page));
+    $page = min($page, $nbPage);
+    $offset = ($page - 1) * $par_page;
 
-    $page = isset($_GET["page"]) ? (int)$_GET["page"] : 1;
-    $page = max(1, $page);
+    /* Requête principale */
+    $sql = "SELECT c.start_date, c.end_date, c.remotely, m.name AS module_name, it.name AS type_name
+            FROM course c
+            JOIN module m ON m.id = c.module_id
+            JOIN intervention_type it ON it.id = c.intervention_type_id
+            JOIN course_instructor ci ON ci.course_id = c.id
+            $sqlWhere
+            GROUP BY c.id
+            ORDER BY c.start_date DESC
+            LIMIT :limit OFFSET :offset";
 
-    $offSet = $page * 10 - 10;
+    $req = $connexion->prepare($sql);
+    // Bind des paramètres du WHERE
+    foreach ($params as $key => $value) {
+        $req->bindValue($key, $value);
+    }
+    // Bind des paramètres de pagination
+    $req->bindValue(':limit', $par_page, PDO::PARAM_INT);
+    $req->bindValue(':offset', $offset, PDO::PARAM_INT);
+    
+    $req->execute();
+    $interventions = $req->fetchAll(PDO::FETCH_ASSOC);
 
-    $requete = 
-        "SELECT course.start_date, course.end_date, course.remotely, module.name AS module_name, intervention_type.name AS type_name
-        FROM course
-        JOIN module ON module.id = course.module_id
-        JOIN intervention_type ON intervention_type.id = course.intervention_type_id
-        JOIN course_instructor ON course_instructor.course_id = course.id
-        WHERE course_instructor.instructor_id = :instructorId";
-
-    if (!empty($dateDebut)) $requete .= " AND course.start_date >= :debut";
-    if (!empty($dateFin)) $requete .= " AND course.end_date <= :fin";
-    if (!empty($moduleID)) $requete .= " AND course.module_id = :moduleId";
-
-    $requete .= " LIMIT 10 OFFSET :offset";
-
-    $requeteFinal = $connexion->prepare($requete);
-    $requeteFinal->bindValue(":instructorId", $instructorId, PDO::PARAM_INT);
-    if (!empty($dateDebut)) $requeteFinal->bindValue(":debut", $dateDebut);
-    if (!empty($dateFin)) $requeteFinal->bindValue(":fin", $dateFin);
-    if (!empty($moduleID)) $requeteFinal->bindValue(":moduleId", $moduleID, PDO::PARAM_INT);
-    $requeteFinal->bindValue(":offset", $offSet, PDO::PARAM_INT);
-
-    $requeteFinal->execute();
-    $interventions = $requeteFinal->fetchAll(PDO::FETCH_ASSOC);
-
-    $count = $total;
+    function urlPage(int $p): string {
+        $params = $_GET;
+        $params['page'] = $p;
+        return '?' . http_build_query($params);
+    }
 ?>
 <!DOCTYPE html>
-<html lang="fr">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -122,7 +140,7 @@
         </div>
         <section class="infos-ens">
             <div class="onglet">
-                <a href="infos-generales.php?id=<?= $id ?>">Informations générales</a>
+                <a href="FE-infos-generales.php?id=<?= $id ?>">Informations générales</a>
                 <a href="">Interventions</a>
             </div>
             <p class="form-title">Filtrer les interventions</p>
@@ -130,11 +148,11 @@
                 <input type="hidden" name="id" value="<?= htmlspecialchars($id) ?>">
                 <div class="input-box">
                     <label for="dateDebut">Date de début</label>
-                    <input type="datetime-local" name="dateDebut" value="<?= htmlspecialchars($dateDebut) ?>">
+                    <input type="datetime-local" name="dateDebut" value="<?= htmlspecialchars($filtre_date_debut) ?>">
                 </div>
                 <div class="input-box">
                     <label for="dateFin">Date de fin</label>
-                    <input type="datetime-local" name="dateFin" value="<?= htmlspecialchars($dateFin) ?>">
+                    <input type="datetime-local" name="dateFin" value="<?= htmlspecialchars($filtre_date_fin) ?>">
                 </div>
                 <div class="input-box">
                     <label for="module">Module</label>
@@ -143,7 +161,7 @@
                         <?php 
                             foreach ($enseignantInfo as $mod){
                                 ?>
-                                <option value="<?= htmlspecialchars($mod["id"]) ?>" <?= $moduleID == $mod["id"] ? 'selected' : '' ?>>
+                                <option value="<?= htmlspecialchars($mod["id"]) ?>" <?= (string)$filtre_module === (string)$mod["id"] ? 'selected' : '' ?>>
                                     <?= htmlspecialchars($mod["name"]) ?>
                                 </option>
                                 <?php
@@ -154,7 +172,7 @@
                 <button type="submit" class="filter-btn">Filtrer</button>
             </form>
             <hr>
-          <h3><?= $count ?> enseignant trouvé(s)</h3>
+          <h3><?= $total ?> intervention<?= $total > 1 ? 's' : '' ?> trouvée<?= $total > 1 ? 's' : '' ?></h3>
           <div class="tableau">
             <div class="tableau-child">
               <p>Date de l'intervention</p>
@@ -202,13 +220,12 @@
 
         <div class="pagination">
         <?php
-        for ($i = 1; $i <= $nbPage; $i++){
-        ?>
-        <a href="?id=<?= $id ?>&page=<?= $i ?>&dateDebut=<?= urlencode($dateDebut) ?>&dateFin=<?= urlencode($dateFin) ?>&module=<?= urlencode($moduleID) ?>"
-           class="pagination-child <?= $i === $page ? 'pagination-select' : '' ?>">
-           <?= $i ?>
-        </a>
-        <?php
+        if ($nbPage > 1) {
+            for ($i = 1; $i <= $nbPage; $i++){
+                ?>
+                <a href="<?= htmlspecialchars(urlPage($i)) ?>" class="pagination-child <?= $i === $page ? 'pagination-select' : '' ?>"><?= $i ?></a>
+                <?php
+            }
         }
         ?>
         </div>

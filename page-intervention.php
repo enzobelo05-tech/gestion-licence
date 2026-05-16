@@ -1,5 +1,5 @@
 <?php
-session_start();
+require_once "variable-connexion/auth.php";
 require_once "variable-connexion/config.php";
 
 /* ============================================================
@@ -48,7 +48,10 @@ foreach ($connexion->query("SELECT instructor_id, module_id FROM instructor_modu
  *  Traitement POST : ajout / modification / suppression
  * ============================================================ */
 
-$erreurs = [];
+$erreurs        = [];
+$erreur_action  = '';   // pour savoir quelle modale rouvrir si erreur
+$post_data      = [];   // pour repré-remplir les champs après une erreur
+$post_intervenants = [];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = $_POST['action'] ?? '';
@@ -60,7 +63,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                   ->execute([':id' => $id]);
         $connexion->prepare("DELETE FROM course WHERE id = :id")
                   ->execute([':id' => $id]);
-        header("Location: " . $_SERVER['PHP_SELF']);
+        header("Location: page-intervention.php?success=1");
         exit;
     }
 
@@ -101,7 +104,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
 
-        if (empty($erreurs)) {
+        if (!empty($erreurs)) {
+            // On garde les données saisies pour re-remplir les champs
+            $erreur_action     = $action;
+            $post_data         = $_POST;
+            $post_intervenants = array_map('intval', $_POST['intervenants'] ?? []);
+        } else {
             if ($action === 'ajouter') {
                 $req = $connexion->prepare("
                     INSERT INTO course (title, start_date, end_date, module_id, intervention_type_id, remotely)
@@ -142,7 +150,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $reqIns->execute([':course' => $id, ':ins' => $ins_id]);
             }
 
-            header("Location: " . $_SERVER['PHP_SELF']);
+            header("Location: page-intervention.php?success=1");
             exit;
         }
     }
@@ -227,7 +235,7 @@ $courses = $req->fetchAll(PDO::FETCH_ASSOC);
     <title>Interventions — Lycée Saint-Vincent</title>
     <link rel="stylesheet" href="styles.css" />
     <link href="https://cdn.jsdelivr.net/npm/tom-select/dist/css/tom-select.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/tom-select/dist/js/tom-select.complete.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/tom-select/dist/js/tom-select.complete.min.js"></script>
     <script src="script.js" defer></script>
 </head>
 <body class="listeInterventions">
@@ -250,10 +258,14 @@ $courses = $req->fetchAll(PDO::FETCH_ASSOC);
         <main>
             <div class="top-main">
                 <h1>Interventions</h1>
-                <button class="bouton-ajouter" id="btn-open-popUp">
-                    Ajouter une nouvelle intervention
-                </button>
+                <button type="submit" value="add" class="bouton-ajouter addInter" id="btn-open-popUp">Ajouter une nouvelle intervention</button>
             </div>
+
+            <?php if (isset($_GET['success'])) : ?>
+                <div style="background:#efe; border:1px solid #6c6; padding:10px 16px; border-radius:6px; margin-bottom:16px; color:#060;">
+                    Enregistrement réussi !
+                </div>
+            <?php endif; ?>
 
             <?php if (!empty($erreurs)) : ?>
                 <div class="msg-erreurs" style="background:#fee; border:1px solid #f99; padding:10px 16px; border-radius:6px; margin-bottom:16px; color:#c00;">
@@ -287,17 +299,20 @@ $courses = $req->fetchAll(PDO::FETCH_ASSOC);
                         <div class="input-box full-width">
                             <label>Titre</label>
                             <input type="text" name="titre" maxlength="255"
-                                   placeholder="Saisissez un titre sur l'intervention" />
+                                   placeholder="Saisissez un titre sur l'intervention"
+                                   value="<?= htmlspecialchars($erreur_action === 'ajouter' ? ($post_data['titre'] ?? '') : '') ?>" />
                         </div>
 
                         <div class="grid-content">
                             <div class="input-box">
                                 <label>Date de début - champ obligatoire</label>
-                                <input type="datetime-local" name="date_debut" required />
+                                <input type="datetime-local" name="date_debut" required
+                                       value="<?= htmlspecialchars($erreur_action === 'ajouter' ? ($post_data['date_debut'] ?? '') : '') ?>" />
                             </div>
                             <div class="input-box">
                                 <label>Date de fin - champ obligatoire</label>
-                                <input type="datetime-local" name="date_fin" required />
+                                <input type="datetime-local" name="date_fin" required
+                                       value="<?= htmlspecialchars($erreur_action === 'ajouter' ? ($post_data['date_fin'] ?? '') : '') ?>" />
                             </div>
                         </div>
 
@@ -307,7 +322,10 @@ $courses = $req->fetchAll(PDO::FETCH_ASSOC);
                                 <select name="module_id" class="select-module" required>
                                     <option value="">Sélectionnez un module</option>
                                     <?php foreach ($modules as $m) : ?>
-                                        <option value="<?= $m['id'] ?>"><?= htmlspecialchars($m['name']) ?></option>
+                                        <option value="<?= $m['id'] ?>"
+                                            <?= ($erreur_action === 'ajouter' && (string)$m['id'] === (string)($post_data['module_id'] ?? '')) ? 'selected' : '' ?>>
+                                            <?= htmlspecialchars($m['name']) ?>
+                                        </option>
                                     <?php endforeach; ?>
                                 </select>
                             </div>
@@ -316,7 +334,10 @@ $courses = $req->fetchAll(PDO::FETCH_ASSOC);
                                 <select name="type_intervention_id" required>
                                     <option value="">Sélectionnez un type</option>
                                     <?php foreach ($types as $t) : ?>
-                                        <option value="<?= $t['id'] ?>"><?= htmlspecialchars($t['name']) ?></option>
+                                        <option value="<?= $t['id'] ?>"
+                                            <?= ($erreur_action === 'ajouter' && (string)$t['id'] === (string)($post_data['type_intervention_id'] ?? '')) ? 'selected' : '' ?>>
+                                            <?= htmlspecialchars($t['name']) ?>
+                                        </option>
                                     <?php endforeach; ?>
                                 </select>
                             </div>
@@ -324,9 +345,10 @@ $courses = $req->fetchAll(PDO::FETCH_ASSOC);
 
                         <div class="input-box full-width">
                             <label>Intervenants - champ obligatoire</label>
-                            <select name="intervenants[]" class="select-intervenants" multiple required>
+                            <select name="intervenants[]" class="select-intervenants" id="intervenants" multiple required>
                                 <?php foreach ($intervenants as $i) : ?>
-                                    <option value="<?= $i['instructor_id'] ?>">
+                                    <option value="<?= $i['instructor_id'] ?>"
+                                        <?= ($erreur_action === 'ajouter' && in_array((int)$i['instructor_id'], $post_intervenants)) ? 'selected' : '' ?>>
                                         <?= htmlspecialchars($i['nom_complet']) ?>
                                     </option>
                                 <?php endforeach; ?>
@@ -336,7 +358,8 @@ $courses = $req->fetchAll(PDO::FETCH_ASSOC);
                         <div class="input-box full-width">
                             <div class="btn-switch">
                                 <label class="toggleSwitch">
-                                    <input type="checkbox" name="visio" value="1" />
+                                    <input type="checkbox" name="visio" value="1"
+                                           <?= ($erreur_action === 'ajouter' && !empty($post_data['visio'])) ? 'checked' : '' ?> />
                                     <span class="slider"></span>
                                 </label>
                                 <span>Intervention effectuée en visio</span>
@@ -367,21 +390,24 @@ $courses = $req->fetchAll(PDO::FETCH_ASSOC);
 
                     <form action="" method="POST" class="formulaire form-intervention" data-mode="modifier">
                         <input type="hidden" name="action" value="modifier" />
-                        <input type="hidden" name="id" value="" />
+                        <input type="hidden" name="id" value="<?= htmlspecialchars($post_data['id'] ?? '') ?>" />
 
                         <div class="input-box full-width">
                             <label>Titre</label>
-                            <input type="text" name="titre" maxlength="255" />
+                            <input type="text" name="titre" maxlength="255"
+                                   value="<?= htmlspecialchars($erreur_action === 'modifier' ? ($post_data['titre'] ?? '') : '') ?>" />
                         </div>
 
                         <div class="grid-content">
                             <div class="input-box">
                                 <label>Date de début - champ obligatoire</label>
-                                <input type="datetime-local" name="date_debut" required />
+                                <input type="datetime-local" name="date_debut" required
+                                       value="<?= htmlspecialchars($erreur_action === 'modifier' ? ($post_data['date_debut'] ?? '') : '') ?>" />
                             </div>
                             <div class="input-box">
                                 <label>Date de fin - champ obligatoire</label>
-                                <input type="datetime-local" name="date_fin" required />
+                                <input type="datetime-local" name="date_fin" required
+                                       value="<?= htmlspecialchars($erreur_action === 'modifier' ? ($post_data['date_fin'] ?? '') : '') ?>" />
                             </div>
                         </div>
 
@@ -391,7 +417,10 @@ $courses = $req->fetchAll(PDO::FETCH_ASSOC);
                                 <select name="module_id" class="select-module" required>
                                     <option value="">Sélectionnez un module</option>
                                     <?php foreach ($modules as $m) : ?>
-                                        <option value="<?= $m['id'] ?>"><?= htmlspecialchars($m['name']) ?></option>
+                                        <option value="<?= $m['id'] ?>"
+                                            <?= ($erreur_action === 'modifier' && (string)$m['id'] === (string)($post_data['module_id'] ?? '')) ? 'selected' : '' ?>>
+                                            <?= htmlspecialchars($m['name']) ?>
+                                        </option>
                                     <?php endforeach; ?>
                                 </select>
                             </div>
@@ -400,7 +429,10 @@ $courses = $req->fetchAll(PDO::FETCH_ASSOC);
                                 <select name="type_intervention_id" required>
                                     <option value="">Sélectionnez un type</option>
                                     <?php foreach ($types as $t) : ?>
-                                        <option value="<?= $t['id'] ?>"><?= htmlspecialchars($t['name']) ?></option>
+                                        <option value="<?= $t['id'] ?>"
+                                            <?= ($erreur_action === 'modifier' && (string)$t['id'] === (string)($post_data['type_intervention_id'] ?? '')) ? 'selected' : '' ?>>
+                                            <?= htmlspecialchars($t['name']) ?>
+                                        </option>
                                     <?php endforeach; ?>
                                 </select>
                             </div>
@@ -408,9 +440,10 @@ $courses = $req->fetchAll(PDO::FETCH_ASSOC);
 
                         <div class="input-box full-width">
                             <label>Intervenants - champ obligatoire</label>
-                            <select name="intervenants[]" class="select-intervenants" multiple required>
+                            <select name="intervenants[]" class="select-intervenants" id="intervenants" multiple required>
                                 <?php foreach ($intervenants as $i) : ?>
-                                    <option value="<?= $i['instructor_id'] ?>">
+                                    <option value="<?= $i['instructor_id'] ?>"
+                                        <?= ($erreur_action === 'modifier' && in_array((int)$i['instructor_id'], $post_intervenants)) ? 'selected' : '' ?>>
                                         <?= htmlspecialchars($i['nom_complet']) ?>
                                     </option>
                                 <?php endforeach; ?>
@@ -420,7 +453,8 @@ $courses = $req->fetchAll(PDO::FETCH_ASSOC);
                         <div class="input-box full-width">
                             <div class="btn-switch">
                                 <label class="toggleSwitch">
-                                    <input type="checkbox" name="visio" value="1" />
+                                    <input type="checkbox" name="visio" value="1"
+                                           <?= ($erreur_action === 'modifier' && !empty($post_data['visio'])) ? 'checked' : '' ?> />
                                     <span class="slider"></span>
                                 </label>
                                 <span>Intervention effectuée en visio</span>
@@ -564,10 +598,10 @@ $courses = $req->fetchAll(PDO::FETCH_ASSOC);
 
         </main>
     </div>
-
-    <!-- Données pour le filtrage côté client (intervenants par module) -->
     <script>
-        window.MAP_MODULE_INTERVENANTS = <?= json_encode($mapModuleIntervenants, JSON_UNESCAPED_UNICODE) ?>;
+        new TomSelect('#intervenants', {
+            plugins: ['remove_button'],
+        });
     </script>
 </body>
 </html>
