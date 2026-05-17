@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/variable-connexion/config.php';
+require_once "variable-connexion/config.php";
 
 $requete = $connexion->query(
     "SELECT name, hours_count, id, parent_id
@@ -45,15 +45,16 @@ function afficherNoeud(array $module): void {
     $heures = $module['hours_count'];
     ?>
     <li class="modules-node">
-        <div class="modules-node-line">
+        <a href="module_form.php?id=<?php echo (int) $module['id']; ?>" class="modules-node-line" title="Ouvrir la fiche">
             <span class="modules-node-text">
+                <span class="modules-node-caret">&#8964;</span>
                 <span class="modules-node-name"><?php echo htmlspecialchars($module['name']); ?></span>
                 <?php if ($heures !== null && $heures !== ''): ?>
-                    <span class="modules-node-hours">(<?php echo (int) $heures; ?>h)</span>
+                    <span class="modules-node-hours">(<?php echo htmlspecialchars($heures); ?>h)</span>
                 <?php endif; ?>
             </span>
-            <a href="module_form.php?id=<?php echo (int) $module['id']; ?>" class="modules-edit-link" title="Modifier">Modifier</a>
-        </div>
+            <span class="modules-open-link">&rsaquo;</span>
+        </a>
         <?php if (!empty($module['enfants'])): ?>
             <ul class="modules-tree-children">
                 <?php foreach ($module['enfants'] as $enfant): ?>
@@ -74,7 +75,7 @@ function afficherNoeud(array $module): void {
     <link rel="stylesheet" href="styles.css">
 </head>
 <body class="modulesPage">
-    <?php require __DIR__ . "/aside.php"; ?>
+    <?php require_once "html-commun/aside.php"; ?>
     <div class="right-page">
         <header>
             <div class="filAriane">
@@ -88,7 +89,6 @@ function afficherNoeud(array $module): void {
         <main>
             <div class="modules-topbar">
                 <h2>Modules</h2>
-                <a href="module_form.php" class="modules-add-btn">Ajouter un module</a>
             </div>
 
             <?php if (empty($arbre)) : ?>
@@ -102,6 +102,8 @@ function afficherNoeud(array $module): void {
                     </ul>
                 </div>
             <?php endif; ?>
+
+            <a href="module_form.php" class="modules-add-btn">Ajouter un module</a>
         </main>
     </div>
 </body>

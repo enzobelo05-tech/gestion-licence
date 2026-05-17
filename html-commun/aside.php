@@ -1,10 +1,18 @@
 <?php
   require_once "variable-connexion/connexion.php";
 
-  $requete = $connexion->prepare("SELECT * FROM user WHERE id = 1");
+  if (session_status() === PHP_SESSION_NONE && !headers_sent()) {
+    session_start();
+  }
+
+  $userId = isset($_SESSION["id"]) ? (int) $_SESSION["id"] : 1;
+
+  $requete = $connexion->prepare("SELECT first_name, last_name, role FROM user WHERE id = :id");
+  $requete->bindValue(":id", $userId, PDO::PARAM_INT);
 
   $requete->execute();
   $user = $requete->fetch(PDO::FETCH_ASSOC);
+  $nomComplet = trim(($user["last_name"] ?? "") . " " . ($user["first_name"] ?? ""));
 ?>
 
 <aside class="aside-page">
@@ -51,9 +59,35 @@
     <div class="userConnexion">
       <img src="assets/pdpUser-removebg-preview.png" alt="user">
       <div class="userInfo">
-        <p><?= htmlspecialchars($user["first_name"]) ?> <?= htmlspecialchars($user["last_name"]) ?>⏷</p>
-        <p><?= htmlspecialchars($user["role"]) ?></p>
+        <button type="button" class="userName userDropdownToggle" aria-expanded="false" aria-controls="userDropdownMenu">
+          <span><?= htmlspecialchars($nomComplet) ?></span>
+          <span class="userArrow">&#8964;</span>
+        </button>
+        <p><?= htmlspecialchars($user["role"] ?? "") ?></p>
+        <div class="userDropdown" id="userDropdownMenu">
+          <a href="variable-connexion/deconnexion.php">Déconnexion</a>
+        </div>
       </div>
     </div>
   </nav>
 </aside>
+<script>
+  const userDropdownToggle = document.querySelector(".userDropdownToggle");
+  const userDropdownMenu = document.querySelector(".userDropdown");
+
+  if (userDropdownToggle && userDropdownMenu) {
+    userDropdownToggle.addEventListener("click", function () {
+      const isOpen = userDropdownToggle.getAttribute("aria-expanded") === "true";
+
+      userDropdownToggle.setAttribute("aria-expanded", String(!isOpen));
+      userDropdownMenu.classList.toggle("is-open", !isOpen);
+    });
+
+    document.addEventListener("click", function (event) {
+      if (!event.target.closest(".userInfo")) {
+        userDropdownToggle.setAttribute("aria-expanded", "false");
+        userDropdownMenu.classList.remove("is-open");
+      }
+    });
+  }
+</script>
