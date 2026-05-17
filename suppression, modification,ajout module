@@ -1,0 +1,299 @@
+<?php
+require_once __DIR__ . '/variable-connexion/config.php';
+
+$erreurs = [];
+$succes = '';
+$module = [
+    'id' => null,
+    'code' => '',
+    'name' => '',
+    'description' => '',
+    'hours_count' => '',
+    'capstone_project' => 0,
+    'parent_id' => '',
+];
+
+$tousLesModules = $connexion->query("SELECT id, name FROM module ORDER BY name")->fetchAll(PDO::FETCH_ASSOC);
+
+$modeEdition = isset($_GET['id']) && ctype_digit($_GET['id']);
+
+if ($modeEdition) {
+    $stmt = $connexion->prepare("SELECT * FROM module WHERE id = ?");
+    $stmt->execute([$_GET['id']]);
+    $trouve = $stmt->fetch(PDO::FETCH_ASSOC);
+    if (!$trouve) {
+        header('Location: modules.php');
+        exit;
+    }
+    $module = $trouve;
+}
+
+// Suppression
+if (isset($_GET['action']) && $_GET['action'] === 'supprimer' && $modeEdition) {
+    $id = (int)$_GET['id'];
+
+    $nbEnfants = $connexion->prepare("SELECT COUNT(*) FROM module WHERE parent_id = ?");
+    $nbEnfants->execute([$id]);
+    if ((int)$nbEnfants->fetchColumn() > 0)
+        $erreurs[] = "Impossible de supprimer : ce module a des sous-modules.";
+
+    $nbCours = $connexion->prepare("SELECT COUNT(*) FROM course WHERE module_id = ?");
+    $nbCours->execute([$id]);
+    if ((int)$nbCours->fetchColumn() > 0)
+        $erreurs[] = "Impossible de supprimer : des cours sont liés à ce module.";
+
+    if (empty($erreurs)) {
+        $connexion->prepare("DELETE FROM instructor_module WHERE module_id = ?")->execute([$id]);
+        $connexion->prepare("DELETE FROM module WHERE id = ?")->execute([$id]);
+        header('Location: modules.php');
+        exit;
+    }
+}
+
+// Ajout / modification
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $module['code']             = trim($_POST['code'] ?? '');
+    $module['name']             = trim($_POST['name'] ?? '');
+    $module['description']      = trim($_POST['description'] ?? '');
+    $module['hours_count']      = trim($_POST['hours_count'] ?? '');
+    $module['capstone_project'] = isset($_POST['capstone_project']) ? 1 : 0;
+    $module['parent_id']        = $_POST['parent_id'] !== '' ? (int)$_POST['parent_id'] : null;
+
+    if ($module['code'] === '')
+        $erreurs[] = "Le code est obligatoire.";
+    if ($module['name'] === '')
+        $erreurs[] = "Le nom est obligatoire.";
+    if ($module['hours_count'] !== '' && (!ctype_digit($module['hours_count']) || (int)$module['hours_count'] < 0))
+        $erreurs[] = "Le nombre d'heures doit être un entier positif.";
+    if ($modeEdition && $module['parent_id'] === (int)$_GET['id'])
+        $erreurs[] = "Un module ne peut pas être son propre parent.";
+
+    if (empty($erreurs)) {
+        $heures = $module['hours_count'] !== '' ? (int)$module['hours_count'] : null;
+
+        if ($modeEdition) {
+            $stmt = $connexion->prepare("UPDATE module SET code=?, name=?, description=?, hours_count=?, capstone_project=?, parent_id=? WHERE id=?");
+            $stmt->execute([$module['code'], $module['name'], $module['description'], $heures, $module['capstone_project'], $module['parent_id'], $_GET['id']]);
+            $succes = "Module modifié avec succès.";
+        } else {
+            $stmt = $connexion->prepare("INSERT INTO module (code, name, description, hours_count, capstone_project, parent_id) VALUES (?,?,?,?,?,?)");
+            $stmt->execute([$module['code'], $module['name'], $module['description'], $heures, $module['capstone_project'], $module['parent_id']]);
+            header('Location: modules.php');
+            exit;
+        }
+    }
+}
+
+$titre = $modeEdition ? 'Modifier un module' : 'Ajouter un module';
+?>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><?= $titre ?></title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .form-card {
+            margin: 20px 40px;
+            background: #fff;
+            border: 1px solid #e3e3e3;
+            border-radius: 10px;
+            padding: 28px 32px;
+            max-width: 600px;
+        }
+        .form-row {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin-bottom: 18px;
+        }
+        .form-row label {
+            font-size: 13px;
+            font-weight: 500;
+        }
+        .form-row input,
+        .form-row textarea,
+        .form-row select {
+            padding: 8px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 7px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+        .form-row input:focus,
+        .form-row textarea:focus,
+        .form-row select:focus {
+            outline: none;
+            border-color: var(--couleur-principal);
+        }
+        .form-row textarea {
+            resize: vertical;
+        }
+        .form-row-checkbox label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            font-weight: 400;
+            cursor: pointer;
+        }
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 24px;
+            padding-top: 18px;
+            border-top: 1px solid #e3e3e3;
+        }
+        .btn {
+            padding: 8px 18px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            border: none;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .btn-primary {
+            background-color: var(--couleur-principal);
+            color: #fff;
+        }
+        .btn-primary:hover { background-color: var(--couleur-principal-hover); }
+        .btn-secondary {
+            border: 1px solid #d1d5db;
+            background: transparent;
+            color: #273240;
+        }
+        .btn-secondary:hover { background: #f3f4f6; }
+        .btn-danger {
+            border: 1px solid #dc3545;
+            background: transparent;
+            color: #dc3545;
+        }
+        .btn-danger:hover { background: #dc3545; color: #fff; }
+        .alert {
+            margin: 0 40px 16px;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        .alert p { margin: 0; }
+        .alert-error { background: #fdecea; color: #991b1b; border: 1px solid #f5c2be; }
+        .alert-success { background: #ecfdf5; color: #065f46; border: 1px solid #a7f3d0; }
+        .alert-success a { color: #065f46; font-weight: 500; }
+        .modules-topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 24px 40px 16px;
+        }
+        .modules-topbar h2 {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--couleur-principal);
+        }
+    </style>
+</head>
+<body class="modulesPage">
+    <?php require __DIR__ . "/aside.php"; ?>
+    <div class="right-page">
+        <header>
+            <div class="filAriane">
+                <img src="assets/Home.svg" alt="Accueil" />
+                <p>></p>
+                <a href="modules.php">Modules</a>
+                <p>></p>
+                <a href=""><?= $titre ?></a>
+            </div>
+            <hr />
+        </header>
+        <main>
+            <div class="modules-topbar">
+                <h2><?= $titre ?></h2>
+                <a href="modules.php" class="btn btn-secondary">← Retour</a>
+            </div>
+
+            <?php if (!empty($erreurs)) : ?>
+                <div class="alert alert-error">
+                    <?php foreach ($erreurs as $e) : ?>
+                        <p><?= htmlspecialchars($e) ?></p>
+                    <?php endforeach ?>
+                </div>
+            <?php endif ?>
+
+            <?php if ($succes) : ?>
+                <div class="alert alert-success">
+                    <p><?= htmlspecialchars($succes) ?> — <a href="modules.php">Retour à la liste</a></p>
+                </div>
+            <?php endif ?>
+
+            <div class="form-card">
+                <form method="POST">
+
+                    <div class="form-row">
+                        <label for="code">Code *</label>
+                        <input type="text" id="code" name="code"
+                               value="<?= htmlspecialchars($module['code']) ?>"
+                               placeholder="ex : INF101" maxlength="20">
+                    </div>
+
+                    <div class="form-row">
+                        <label for="name">Nom *</label>
+                        <input type="text" id="name" name="name"
+                               value="<?= htmlspecialchars($module['name']) ?>"
+                               placeholder="ex : Introduction à la programmation">
+                    </div>
+
+                    <div class="form-row">
+                        <label for="description">Description</label>
+                        <textarea id="description" name="description" rows="3"
+                                  placeholder="Description du module…"><?= htmlspecialchars($module['description']) ?></textarea>
+                    </div>
+
+                    <div class="form-row">
+                        <label for="hours_count">Nombre d'heures</label>
+                        <input type="number" id="hours_count" name="hours_count"
+                               value="<?= htmlspecialchars($module['hours_count']) ?>"
+                               min="0" placeholder="ex : 40">
+                    </div>
+
+                    <div class="form-row">
+                        <label for="parent_id">Module parent</label>
+                        <select id="parent_id" name="parent_id">
+                            <option value="">— Aucun —</option>
+                            <?php foreach ($tousLesModules as $m) : ?>
+                                <?php if ($modeEdition && (int)$m['id'] === (int)$_GET['id']) continue ?>
+                                <option value="<?= (int)$m['id'] ?>" <?= (string)$module['parent_id'] === (string)$m['id'] ? 'selected' : '' ?>>
+                                    <?= htmlspecialchars($m['name']) ?>
+                                </option>
+                            <?php endforeach ?>
+                        </select>
+                    </div>
+
+                    <div class="form-row form-row-checkbox">
+                        <label>
+                            <input type="checkbox" name="capstone_project" <?= $module['capstone_project'] ? 'checked' : '' ?>>
+                            Projet de fin de formation
+                        </label>
+                    </div>
+
+                    <div class="form-actions">
+                        <a href="modules.php" class="btn btn-secondary">Annuler</a>
+                        <?php if ($modeEdition) : ?>
+                            <a href="?id=<?= (int)$_GET['id'] ?>&action=supprimer"
+                               class="btn btn-danger"
+                               onclick="return confirm('Supprimer ce module ?')">Supprimer</a>
+                        <?php endif ?>
+                        <button type="submit" class="btn btn-primary">
+                            <?= $modeEdition ? 'Enregistrer' : 'Ajouter' ?>
+                        </button>
+                    </div>
+
+                </form>
+            </div>
+        </main>
+    </div>
+</body>
+</html>
